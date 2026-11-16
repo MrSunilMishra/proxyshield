@@ -57,3 +57,4 @@ def test_random_proxy():
     p = get_random_free_proxy(source="geonode")
     if p:
         assert "://" in p.get("proxy", "")
+

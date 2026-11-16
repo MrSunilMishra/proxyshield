@@ -14,6 +14,14 @@ dependencies = [
     "pyfiglet>=1.0.2",
     "rich>=13.0.0",
     "colorama>=0.4.6",
+    "httpx>=0.27.0",
+    "PySocks>=1.7.1",
+    "dnspython>=2.6.0",
+    "psutil>=6.0.0",
+    "pydantic>=2.7.0",
+    "SQLAlchemy>=2.0.0",
+    "Jinja2>=3.1.0",
+    "cryptography>=42.0.0",
 ]
 
 [project.optional-dependencies]

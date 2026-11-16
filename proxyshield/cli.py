@@ -178,16 +178,75 @@ def handle_proxy_cli(args: argparse.Namespace) -> int:
         return 0
 
 
+from proxyshield.security_shield import StrictProxyShield, LEGAL_PRIVACY_NOTICE, DirectIPExposureError
+from proxyshield.auditor import NetworkAuditEngine
+from proxyshield.reporter import export_multi_format_reports
+
+
+def handle_audit_cli(args: argparse.Namespace) -> int:
+    """Handles `proxyshield audit` command."""
+    target_url = args.target
+    print(colorize_text("\n=======================================================", "bright_yellow", bold=True))
+    print(colorize_text("🛡️  PROXYSHIELD STRICT PROXY SECURITY AUDIT", "bright_cyan", bold=True))
+    print(colorize_text("=======================================================", "bright_yellow", bold=True))
+    print(colorize_text("\n[PRIVACY & LEGAL TRANSPARENCY NOTICE]", "bright_yellow", bold=True))
+    print(colorize_text(LEGAL_PRIVACY_NOTICE, "white"))
+    print()
+
+    shield = StrictProxyShield()
+    print(colorize_text(f"[Direct-IP Guard] Baseline Operator IP: {shield.operator_direct_ip}", "bright_cyan"))
+    print(colorize_text("[Direct-IP Guard] Direct connection fallback: DISABLED (Enforced)", "bright_green", bold=True))
+    print(colorize_text(f"[Target] Auditing authorized target: {target_url}", "bright_white", bold=True))
+
+    # Fetch live candidate proxies
+    print(colorize_text("\n[1/3] Gathering verified proxy pool...", "bright_cyan"))
+    proxies = fetch_free_proxies(source="all", limit=args.limit or 10)
+    if not proxies:
+        print(colorize_text("Error: No proxies available for audit.", "bright_red"))
+        return 1
+
+    print(colorize_text(f"Fetched {len(proxies)} candidate proxies. Beginning sequential low-rate testing...", "bright_yellow"))
+    auditor = NetworkAuditEngine(shield=shield)
+    audit_data = auditor.audit_target(
+        target_url=target_url,
+        proxies=proxies,
+        rate_limit_delay=args.delay,
+        max_requests=args.limit or 10,
+        timeout=args.timeout or 6
+    )
+
+    print(colorize_text("\n[2/3] Diagnostic Request Breakdown:", "bright_yellow", bold=True))
+    for r in audit_data["results"]:
+        status_str = f"HTTP {r['status_code']}" if r.get('status_code') else r.get('category')
+        cat = r.get('category', 'UNKNOWN')
+        col = 'bright_green' if cat == 'SUCCESS' else ('bright_yellow' if '403' in cat or '429' in cat else 'bright_red')
+        print(f"  • {r['endpoint'].ljust(35)} Exit IP: {str(r.get('exit_ip')).ljust(16)} -> {colorize_text(status_str, col)} ({r.get('latency_ms', 0)} ms)")
+
+    # Generate Reports (HTML, JSON, CSV)
+    report_base = args.report or "audit_report"
+    print(colorize_text(f"\n[3/3] Generating multi-format audit reports ({report_base}.*)...", "bright_cyan"))
+    out_files = export_multi_format_reports(audit_data, report_base)
+    for fmt, pth in out_files.items():
+        print(colorize_text(f"  ✓ {fmt.upper()} Report: {os.path.abspath(pth)}", "bright_green"))
+
+    print(colorize_text("\nAudit successfully concluded under strict proxy-only mode.\n", "bright_cyan", bold=True))
+    return 0
+
+
 def print_main_menu() -> None:
     """Displays the terminal startup branding screen and quick actions menu."""
     banner = render_branding_banner()
     print(banner)
 
+    print("\n" + colorize_text("LEGAL & PRIVACY TRANSPARENCY NOTICE:", "bright_yellow", bold=True))
+    print(colorize_text(LEGAL_PRIVACY_NOTICE, "gray"))
+
     print("\n" + colorize_text("Available Commands:", "bright_yellow", bold=True))
     commands = [
-        ("proxyshield proxy", "Fetch and display live free proxies from ProxyScrape"),
+        ("proxyshield proxy", "Fetch and display live free proxies (Geonode + ProxyScrape)"),
         ("proxyshield proxy check", "Run concurrent latency & connectivity diagnostics"),
         ("proxyshield proxy random", "Get a single fast random proxy endpoint"),
+        ("proxyshield audit --target <URL>", "Conduct authorized security audit strictly through proxies"),
         ("proxyshield banner", "Render branding banner with active configuration"),
         ("proxyshield banner --preview", "Display font style & color effect showcase"),
         ("proxyshield banner --list-fonts", "List all supported typography fonts"),
@@ -214,8 +273,16 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", help="Subcommand to execute")
 
     # proxy subcommand
-    proxy_parser = subparsers.add_parser("proxy", help="Fetch, verify, and filter free proxies from ProxyScrape")
+    proxy_parser = subparsers.add_parser("proxy", help="Fetch, verify, and filter free proxies from ProxyScrape and Geonode")
     proxy_sub = proxy_parser.add_subparsers(dest="proxy_action")
+
+    # audit subcommand (Section D & F)
+    audit_parser = subparsers.add_parser("audit", help="Authorized target security testing strictly via verified proxies")
+    audit_parser.add_argument("--target", "-t", type=str, required=True, help="Target URL (authorized targets only)")
+    audit_parser.add_argument("--limit", type=int, default=10, help="Number of proxies to audit against target")
+    audit_parser.add_argument("--delay", type=float, default=1.0, help="Rate limit delay between requests in seconds")
+    audit_parser.add_argument("--timeout", type=int, default=6, help="Request timeout in seconds")
+    audit_parser.add_argument("--report", type=str, default="audit_report", help="Base filename for generated reports (HTML, JSON, CSV)")
 
     # proxy fetch / list
     def add_filter_args(p):
@@ -275,7 +342,9 @@ def main(argv: List[str] = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    if args.command == "proxy":
+    if args.command == "audit":
+        return handle_audit_cli(args)
+    elif args.command == "proxy":
         return handle_proxy_cli(args)
     elif args.command == "banner":
         return handle_banner_cli(args)

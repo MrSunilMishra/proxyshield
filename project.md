@@ -1,244 +1,205 @@
-# ProxyShield – Advanced CFonts-Style Terminal Branding Engine
+# ProxyShield Advanced Public Proxy Intelligence & Transparency Engine
 
-## 1. Project Identity
+## Project Objective
 
-Tool Name: ProxyShield  
-Author: Quarkova  
-Organization: Quarkova  
-Website: https://quarkova.com  
-License: MIT  
-Category: Network Security & Diagnostics
+Develop an advanced, transparent public-proxy-based network security auditing system.
 
-IMPORTANT: Author must always be Quarkova. Do not use any personal author name.
+The tool must use publicly available free proxy endpoints rather than intentionally using the operator's direct public IP for target requests.
 
-## 2. Terminal Typography Engine
+Author: Quarkova.
 
-Create an advanced terminal typography engine inspired by CFonts.
+## A. Public Proxy Discovery
 
-It must support:
+Implement a configurable proxy source registry.
 
-### Font Styles
+Features:
 
-- Standard
-- Block
-- 3D
-- Huge
-- Shadow
-- Shade
-- Console
-- Slant
-- Small
-- Banner
-- Digital
-- Custom ASCII fonts
+- Support multiple public proxy list providers.
+- Import proxy lists from TXT and JSON.
+- Support HTTP, HTTPS, SOCKS4 and SOCKS5.
+- Record the original source of every proxy.
+- Record source URL and retrieval timestamp.
+- Validate proxy format.
+- Detect duplicate endpoints.
+- Maintain a proxy health database.
+- Allow manual proxy source configuration.
 
-Use Python libraries such as:
+Never assume public proxy lists are trustworthy.
 
-- pyfiglet
+Respect provider terms, robots policies where applicable, and rate limits.
+
+## B. Proxy Verification
+
+Before using a proxy:
+
+1. Test connectivity.
+2. Verify the proxy protocol.
+3. Identify the externally observed exit IP using a trusted IP-echo endpoint.
+4. Measure latency.
+5. Detect connection failures.
+6. Verify HTTPS CONNECT support where applicable.
+7. Check whether the proxy leaks the direct client IP through HTTP headers.
+8. Record verification time.
+
+Never send credentials, cookies or sensitive data through public proxies.
+
+## C. Strict Direct-IP Protection
+
+This is a critical requirement.
+
+Implement a strict proxy-only mode.
+
+- Never send target requests directly when proxy mode is enabled.
+- Disable automatic direct connection fallback.
+- If the proxy fails, stop the request.
+- Verify the observed exit IP before testing the target.
+- Reject requests if the observed source IP unexpectedly matches the operator's direct public IP.
+- Do not silently change the network route.
+- Clearly report proxy failures.
+
+Important: Explain that proxy-only mode cannot guarantee anonymity or prevent all possible metadata leaks.
+
+## D. Multi-Proxy Security Testing
+
+For authorized targets only:
+
+- Select verified public proxy endpoints.
+- Perform low-rate HTTP requests.
+- Record the observed exit IP.
+- Record the target response.
+- Identify HTTP 403, 429 and 5xx.
+- Detect timeout and connection failures.
+- Compare results across proxy endpoints.
+- Stop automatically when configured safety limits are reached.
+
+Do not use proxy rotation to evade another server's security controls or bypass rate limits.
+
+## E. Advanced Transparency System
+
+Every proxy must have a record containing:
+
+- Proxy IP.
+- Port.
+- Protocol.
+- Country, if reliably identified.
+- ASN.
+- ISP.
+- Source provider name.
+- Source URL.
+- First discovered time.
+- Last verified time.
+- Latency.
+- Availability.
+- Exit IP verification.
+- Anonymity classification.
+- Security warnings.
+- Number of successful verification attempts.
+
+Every report must disclose which public proxy endpoints were used.
+
+Do not hide proxy providers or silently substitute endpoints.
+
+## F. Firewall Verification
+
+Distinguish these results:
+
+- Proxy connection failure.
+- DNS failure.
+- TCP connection failure.
+- TLS handshake failure.
+- HTTP 403.
+- HTTP 429.
+- HTTP 5xx.
+- Successful HTTP response.
+- Confirmed firewall block, only when supported by server-side evidence.
+
+For confirmed firewall verification, provide an optional server-side agent that reads authorized firewall logs.
+
+Do not classify every rejected connection as an IP block.
+
+## G. Proxy Risk Analysis
+
+Create a proxy risk scoring engine.
+
+Check:
+
+- Protocol security.
+- HTTPS support.
+- Unexpected HTTP headers.
+- IP mismatch.
+- Suspicious proxy behavior.
+- Provider reputation where reliable data is available.
+- Last verification age.
+
+Label proxies:
+
+- Unverified
+- Verified Connectivity
+- High Risk
+- Unavailable
+
+Do not label an untrusted public proxy as secure simply because it passed connectivity testing.
+
+## H. Advanced Reporting
+
+Support:
+
+- HTML
+- JSON
+- CSV
+- PDF
+
+Include:
+
+1. Total discovered proxies.
+2. Total verified proxies.
+3. Total unavailable proxies.
+4. Proxy provider distribution.
+5. Proxy country distribution.
+6. Observed exit IPs.
+7. Target response distribution.
+8. Latency statistics.
+9. Firewall verification results.
+10. Direct-IP fallback status.
+11. Proxy risk warnings.
+12. Complete source attribution.
+
+## I. Technical Stack
+
+Python:
+
+- HTTPX
+- PySocks
+- dnspython
+- psutil
+- ipaddress
 - Rich
-- Colorama
+- Typer
+- Pydantic
+- SQLAlchemy
+- SQLite
+- Jinja2
+- Cryptography
+- Pytest
 
-### Color Effects
+Bash:
 
-- Single color
-- Multiple colors
-- RGB colors
-- HEX colors
-- Rainbow gradient
-- Horizontal gradient
-- Vertical gradient
-- Bright colors
-- Custom color combinations
+- Installation
+- Environment detection
+- Dependency management
+- Diagnostics
+- Backup and restore
 
-### Text Effects
+## J. Privacy & Legal Transparency
 
-- 3D appearance
-- Shadow
-- Outline
-- Background patterns
-- Neon-style colors
-- Bold typography
+Display this notice in README and the application:
 
-### Text Alignment
+"ProxyShield uses publicly available third-party proxy services for educational and authorized network security auditing. The operator's direct public IP is not intentionally used for target requests in strict proxy-only mode. Public proxy operators may observe, inspect or log traffic. ProxyShield does not guarantee anonymity, privacy or proxy security. All testing must be conducted against authorized targets."
 
-- Left
-- Center
-- Right
+## K. Final Requirement
 
-### Terminal Features
+The application must be genuinely functional, modular, transparent and testable.
 
-- Automatic terminal width detection
-- Automatic font resizing or fallback
-- Unicode support
-- ANSI color support
-- Graceful fallback for unsupported terminals
+Build a professional public-proxy intelligence and authorized network security auditing platform.
 
-## 3. Branding Configuration
-
-Create a customizable file named:
-
-`branding.txt`
-
-Example:
-
-[IDENTITY]
-tool_name = ProxyShield
-author = Quarkova
-organization = Quarkova
-version = 1.0.0
-codename = Network Guardian
-description = Open Source Network Security Toolkit
-tagline = Learn. Test. Secure.
-website = https://quarkova.com
-license = MIT
-
-[BANNER]
-enabled = true
-text = ProxyShield
-font = 3d
-alignment = center
-effect = shade
-background = none
-
-[COLORS]
-mode = gradient
-color_start = #ff5500
-color_end = #00ffff
-gradient = true
-rainbow = false
-bold = true
-
-[DISPLAY]
-show_author = true
-show_version = true
-show_website = true
-show_tagline = true
-show_license = true
-show_system_info = true
-show_menu = true
-
-[THEME]
-name = dark
-primary = cyan
-secondary = yellow
-success = green
-warning = yellow
-error = red
-
-## 4. Customization Commands
-
-Support these commands:
-
-`proxyshield banner`
-
-`proxyshield banner --text "HELLO WORLD"`
-
-`proxyshield banner --font 3d`
-
-`proxyshield banner --font huge`
-
-`proxyshield banner --color red`
-
-`proxyshield banner --gradient red,blue`
-
-`proxyshield banner --align center`
-
-`proxyshield banner --effect shade`
-
-`proxyshield banner --list-fonts`
-
-`proxyshield banner --preview`
-
-All banner options must work independently of the network testing modules.
-
-## 5. Protected Configuration File
-
-The branding configuration must have owner-only write permissions.
-
-On Linux:
-
-- Set file owner to the installing user.
-- Apply permission `chmod 600 branding.txt`.
-- Apply directory permission `chmod 700` to the private configuration directory.
-- Verify permissions during installation.
-- Never make the configuration world-writable.
-- Do not use chmod 777.
-- Do not overwrite an existing customized configuration during updates.
-
-Suggested location:
-
-`~/.config/proxyshield/branding.txt`
-
-The owner can edit all branding settings.
-
-Python and Bash scripts should have read access to the same file.
-
-If another user runs the application without permission, display a helpful error instead of silently modifying permissions.
-
-Explain that root administrators can still change ownership and permissions.
-
-## 6. Configuration Management
-
-Provide:
-
-`proxyshield config show`
-
-`proxyshield config validate`
-
-`proxyshield config edit`
-
-`proxyshield config reset`
-
-`proxyshield config permissions`
-
-The reset command must request confirmation before overwriting customized settings.
-
-Never reset or overwrite the configuration automatically during an update.
-
-## 7. Bash Integration
-
-Bash scripts must read the same branding configuration.
-
-Do not execute branding.txt using `source`.
-
-Use a safe INI parser or a dedicated Python configuration reader to avoid arbitrary shell command execution.
-
-The Bash startup script should display the same banner and branding as the Python CLI.
-
-## 8. Project Structure
-
-Add:
-
-- proxyshield/banner.py
-- proxyshield/branding.py
-- proxyshield/color_engine.py
-- proxyshield/font_engine.py
-- proxyshield/config_manager.py
-- branding.example.txt
-- scripts/branding-preview.sh
-- docs/BRANDING.md
-
-## 9. Installation Dependencies
-
-Install and verify:
-
-- pyfiglet
-- rich
-- colorama
-
-Keep dependencies compatible with Python 3 and Termux.
-
-## 10. Final Acceptance Criteria
-
-1. The terminal startup screen must resemble the supplied CFonts visual reference.
-2. Multiple ASCII font styles must work.
-3. Gradient and custom colors must work.
-4. The user must be able to change every branding field.
-5. Author must display as Quarkova.
-6. Python and Bash must use the same configuration.
-7. Configuration must be owner-protected.
-8. Updates must preserve user customization.
-9. Linux and Termux must both be supported.
-10. Include automated tests for configuration parsing, permissions and banner rendering.
-
-Build a functional typography engine, not a static ASCII logo.
+Do not implement unrestricted distributed traffic generation, security-control evasion or unauthorized scanning.

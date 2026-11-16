@@ -1,11 +1,11 @@
 # ProxyShield 🛡️
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python: 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Python: 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Platform: Linux | Termux | macOS | Windows](https://img.shields.io/badge/platform-Linux%20%7C%20Termux%20%7C%20macOS%20%7C%20Windows-green.svg)](https://github.com/MrSunilMishra/proxyshield)
 [![Organization: Quarkova](https://img.shields.io/badge/organization-Quarkova-orange.svg)](https://quarkova.com)
 
-> **Advanced CFonts-Style Terminal Branding & Typography Engine for Network Security & Diagnostics Tools.**
+> **Advanced Public Proxy Intelligence, Transparency & Authorized Network Security Auditing Engine.**
 
 ```
              _____                      _____ _     _      _     _
@@ -24,26 +24,28 @@
 
 ---
 
-## ⚠️ Important Disclaimer & Educational Notice
+## ⚠️ Privacy & Legal Transparency Notice
+
+> [!IMPORTANT]
+> **ProxyShield uses publicly available third-party proxy services for educational and authorized network security auditing. The operator's direct public IP is not intentionally used for target requests in strict proxy-only mode. Public proxy operators may observe, inspect or log traffic. ProxyShield does not guarantee anonymity, privacy or proxy security. All testing must be conducted against authorized targets.**
 
 > [!CAUTION]
-> **FOR EDUCATIONAL, RESEARCH, AND AUTHORIZED DIAGNOSTIC PURPOSES ONLY.**
->
-> * **DO NOT USE FOR DDOS OR DOS ATTACKS**: ProxyShield is designed strictly as a terminal branding, typography, and network diagnostic framework for learning and defensive testing. It must **NEVER** be used to launch Distributed Denial of Service (DDoS) attacks, flood network infrastructure, disrupt web services, or conduct unauthorized stress testing.
-> * **LEGAL & ETHICAL USE**: You may only test and diagnose systems and networks that you own or have received **explicit, written authorization** to test. Unauthorized attacks against computers, networks, or services are illegal under federal and international laws (such as the US Computer Fraud and Abuse Act - CFAA).
-> * **NO LIABILITY**: The author (**Quarkova**), developers, and contributors assume **no liability** and are not responsible for any misuse, damage, service downtime, or legal repercussions resulting from the use of this software. By using this tool, you agree to take full personal responsibility for complying with all applicable laws.
+> **DO NOT USE FOR MALICIOUS ATTACKS OR DDOS:**
+> * ProxyShield is strictly intended for defensive research, transparency auditing, and authorized diagnostic evaluations.
+> * Never use this tool for unauthorized port scanning, denial-of-service, traffic flooding, or evading third-party security controls.
+> * Always obtain explicit written authorization before auditing any target network.
 
 ---
 
-## 🌟 Key Features
+## 🌟 Core Architecture & Capabilities
 
-* **CFonts-Inspired Terminal Typography**: Support for 11 core font styles (`standard`, `block`, `3d`, `huge`, `shadow`, `shade`, `console`, `slant`, `small`, `banner`, `digital`) and 570+ FIGlet backend fonts.
-* **TrueColor & Dual Gradients**: 24-bit TrueColor RGB, HEX `#RRGGBB`, horizontal and vertical smooth multi-stop gradients, 7-color rainbow spectrum, and neon glowing effects.
-* **Typographical Text Effects**: Halftone Unicode block shading (`█`, `▓`, `▒`, `░`), drop-shadows, 3D extrusions, and wireframe outlines.
-* **Terminal Responsiveness**: Automatic terminal width detection (`shutil.get_terminal_size()`), text alignment (`left`, `center`, `right`), and automatic font resizing/fallback for narrow terminals.
-* **Protected Configuration (`branding.txt`)**: Centralized INI configuration stored at `~/.config/proxyshield/branding.txt` secured with owner-only permissions (`chmod 600` for file, `chmod 700` for directory).
-* **Dual Python & Bash Integration**: Bash scripts read configuration directly via AWK safe parsing without `source` or `eval`, eliminating arbitrary code execution risks.
-* **Cross-Platform**: Fully compatible with Linux, Android Termux, macOS, and Windows.
+* **Public Proxy Discovery**: Configurable source registry pulling from **Geonode**, **ProxyScrape**, and manual imports (TXT/JSON). Tracks provider attribution, protocol (HTTP, HTTPS, SOCKS4, SOCKS5), and health history in SQLite.
+* **Strict Direct-IP Protection**: Zero direct-fallback enforcement. Discovers the operator's real public IP as a baseline; if an observed exit IP unexpectedly matches the operator's IP or a proxy fails, the request is immediately aborted.
+* **Multi-Proxy Security Auditing**: Executes low-rate, controlled HTTP requests across verified proxy endpoints against authorized targets.
+* **Firewall Diagnostic Categorization**: Accurately classifies responses: `SUCCESS`, `HTTP_403`, `HTTP_429`, `HTTP_5XX`, `TCP_FAIL`, `TLS_FAIL`, `DNS_FAIL`, `PROXY_FAIL`, and true `FIREWALL_BLOCK` (backed by server-side log evidence).
+* **Proxy Risk Scoring Engine**: Evaluates protocol security, HTTPS support, header leaks (`X-Forwarded-For`, `Via`), and assigns transparency labels: `Unverified`, `Verified Connectivity`, `High Risk`, and `Unavailable`.
+* **Advanced Multi-Format Reporting**: Generates comprehensive transparency reports in **HTML**, **JSON**, and **CSV**.
+* **CFonts Terminal Branding Engine**: 11 typography styles, 570+ FIGlet fonts, 24-bit TrueColor gradients, and owner-protected configuration (`chmod 600` / `700`).
 
 ---
 
@@ -255,7 +257,26 @@ proxyshield proxy random --protocol socks5 --country US
 
 ---
 
-### 4. Configuration Management
+### 4. Strict-Proxy Security Auditing & Firewall Diagnostics
+
+Conduct low-rate, defensive audits against **authorized targets only** strictly through verified public proxy endpoints. Automatic direct fallback is disabled to prevent accidental direct IP exposure:
+
+```bash
+# Audit an authorized target across 10 verified proxies
+proxyshield audit --target "https://example.com" --limit 10
+
+# Customize request delay (rate-limit safety) and export reports
+proxyshield audit --target "https://example.com" --delay 1.5 --report my_security_audit
+```
+
+This generates three synchronized reports:
+* `my_security_audit.html` (interactive executive dashboard)
+* `my_security_audit.json` (machine-readable metrics & telemetry)
+* `my_security_audit.csv` (tabular log for SIEM or spreadsheet analysis)
+
+---
+
+### 5. Configuration Management
 
 ProxyShield stores its settings in an INI file at:
 ```bash
