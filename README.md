@@ -127,8 +127,31 @@ pip install -e .
 Verify your installation:
 ```bash
 proxyshield --version
-# Output: ProxyShield 1.0.0 by Quarkova
+# Or use the short-form alias:
+pxs -v
+# Output: ProxyShield (pxs) v1.0.0 by Quarkova
 ```
+
+---
+
+## ⚡ Command Short-Form (`pxs`) & Quick Aliases
+
+You can run commands using **either** `proxyshield` or the quick alias **`pxs`**:
+
+| Full Command | Short Alias (`pxs`) | Description |
+| :--- | :--- | :--- |
+| `proxyshield -h` | `pxs -h` | Display global help and quick command overview |
+| `proxyshield -v` | `pxs -v` | Display version and author metadata |
+| `proxyshield proxy` | `pxs p` | Query and display live free proxies |
+| `proxyshield proxy fetch` | `pxs p f` | Filter & fetch proxies (`--protocol`, `--country`) |
+| `proxyshield proxy check` | `pxs p c` | Concurrent live connectivity and latency check |
+| `proxyshield proxy random`| `pxs p r` | Get a single instant working proxy |
+| `proxyshield audit` | `pxs a` | Run strict-proxy security audit (`-t <URL>`) |
+| `proxyshield banner` | `pxs b` | Generate CFonts typography banner (`-t`, `-f`, `-g`) |
+| `proxyshield config` | `pxs c` | Configuration management (`show`, `validate`, `edit`) |
+
+> [!TIP]
+> Add `-h` or `--help` after any command or alias for contextual usage and options (e.g. `pxs p -h`, `pxs a -h`, `pxs b -h`).
 
 ---
 
@@ -136,9 +159,11 @@ proxyshield --version
 
 ### 1. Launch Interactive Startup Screen
 
-Simply run `proxyshield` without arguments to view the terminal startup screen with branding badges and the command directory:
+Run `proxyshield` or `pxs` without arguments:
 
 ```bash
+pxs
+# Or:
 proxyshield
 ```
 

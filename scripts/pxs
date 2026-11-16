@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# ProxyShield (pxs) CLI execution wrapper
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if [ -f "$DIR/.venv/bin/python" ]; then
+    exec "$DIR/.venv/bin/python" -m proxyshield.cli "$@"
+elif [ -f "$DIR/.venv/Scripts/python.exe" ]; then
+    exec "$DIR/.venv/Scripts/python.exe" -m proxyshield.cli "$@"
+elif command -v python3 >/dev/null 2>&1; then
+    exec python3 -m proxyshield.cli "$@"
+else
+    exec python -m proxyshield.cli "$@"
+fi

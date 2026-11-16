@@ -612,17 +612,43 @@ proxyshield</code></pre>
       <section id="quickstart">
         <div class="section-header">
           <span class="step-number">2</span>
-          <h2>Step 2: Startup Screen & Main Menu</h2>
+          <h2>Step 2: Startup Screen & Short-Form Aliases (`pxs`)</h2>
         </div>
         <p class="lead">
-          Running <code>proxyshield</code> without arguments displays the CFonts startup screen, system diagnostic badges, and available commands:
+          You can run commands using <strong>either</strong> the full name <code>proxyshield</code> or the ultra-fast short alias <strong><code>pxs</code></strong> (or <code>PxS</code>):
         </p>
         <div class="code-wrapper">
           <div class="code-header">
             <span>bash</span>
             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
           </div>
-          <pre><code><span class="cmd">proxyshield</span></code></pre>
+          <pre><code><span class="comment"># Launch with short form</span>
+<span class="cmd">pxs</span>
+
+<span class="comment"># Global Help & Options (-h or --help)</span>
+<span class="cmd">pxs -h</span>
+
+<span class="comment"># Version & Author Metadata (-v or --version)</span>
+<span class="cmd">pxs -v</span></code></pre>
+        </div>
+
+        <div class="feature-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+          <div class="card">
+            <h3><code>pxs p</code> (Proxy)</h3>
+            <p>Query, filter, and benchmark free proxies from Geonode & ProxyScrape. Add <code>-h</code> for sub-options.</p>
+          </div>
+          <div class="card">
+            <h3><code>pxs a</code> (Audit)</h3>
+            <p>Conduct strict-proxy security audits against authorized targets with zero direct-IP fallback.</p>
+          </div>
+          <div class="card">
+            <h3><code>pxs b</code> (Banner)</h3>
+            <p>Generate CFonts-style ASCII banners with TrueColor gradients, shade, and shadow effects.</p>
+          </div>
+          <div class="card">
+            <h3><code>pxs c</code> (Config)</h3>
+            <p>Manage <code>branding.txt</code> with owner-only <code>chmod 600</code> permissions.</p>
+          </div>
         </div>
       </section>
 
@@ -857,3 +883,4 @@ proxyshield</code></pre>
   </script>
 </body>
 </html>
+

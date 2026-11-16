@@ -263,84 +263,144 @@ def print_main_menu() -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Builds the main argument parser."""
+    """Builds the main argument parser with full aliases and rich descriptions."""
+    epilog_text = (
+        "Short-form Aliases:\n"
+        "  pxs                         Short alias for 'proxyshield'\n"
+        "  pxs p, proxyshield proxy     Proxy pool & diagnostics (fetch, check, random)\n"
+        "  pxs a, proxyshield audit     Strict security audit against authorized target\n"
+        "  pxs b, proxyshield banner    Typography banner generator\n"
+        "  pxs c, proxyshield config    Configuration & permissions management\n\n"
+        "Examples:\n"
+        "  pxs -h                      Display this help overview\n"
+        "  pxs p check --limit 15      Quick proxy check\n"
+        "  pxs a -t https://target     Strict proxy audit\n"
+        "  pxs b --gradient red,blue   Render colorful banner\n"
+    )
+
     parser = argparse.ArgumentParser(
         prog="proxyshield",
-        description="ProxyShield - Advanced CFonts-Style Terminal Branding Engine & Free Proxy Diagnostics"
+        description="ProxyShield (pxs) - Advanced CFonts Terminal Branding & Public Proxy Intelligence Platform\nAuthor: Quarkova (https://quarkova.com)",
+        epilog=epilog_text,
+        formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("-v", "--version", action="version", version=f"ProxyShield {__version__} by Quarkova")
+    parser.add_argument("-v", "--version", action="version", version=f"ProxyShield (pxs) v{__version__} by Quarkova")
 
-    subparsers = parser.add_subparsers(dest="command", help="Subcommand to execute")
+    subparsers = parser.add_subparsers(dest="command", help="Subcommand to execute (use -h with any subcommand)")
 
-    # proxy subcommand
-    proxy_parser = subparsers.add_parser("proxy", help="Fetch, verify, and filter free proxies from ProxyScrape and Geonode")
+    # proxy subcommand (aliases: p, proxies)
+    proxy_parser = subparsers.add_parser(
+        "proxy",
+        aliases=["p", "proxies"],
+        help="Fetch, verify, and filter free proxies from ProxyScrape and Geonode"
+    )
     proxy_sub = proxy_parser.add_subparsers(dest="proxy_action")
 
-    # audit subcommand (Section D & F)
-    audit_parser = subparsers.add_parser("audit", help="Authorized target security testing strictly via verified proxies")
+    # audit subcommand (aliases: a, scan)
+    audit_parser = subparsers.add_parser(
+        "audit",
+        aliases=["a", "scan"],
+        help="Authorized target security testing strictly via verified proxies"
+    )
     audit_parser.add_argument("--target", "-t", type=str, required=True, help="Target URL (authorized targets only)")
-    audit_parser.add_argument("--limit", type=int, default=10, help="Number of proxies to audit against target")
-    audit_parser.add_argument("--delay", type=float, default=1.0, help="Rate limit delay between requests in seconds")
+    audit_parser.add_argument("--limit", "-n", type=int, default=10, help="Number of proxies to audit against target")
+    audit_parser.add_argument("--delay", "-d", type=float, default=1.0, help="Rate limit delay between requests in seconds")
     audit_parser.add_argument("--timeout", type=int, default=6, help="Request timeout in seconds")
-    audit_parser.add_argument("--report", type=str, default="audit_report", help="Base filename for generated reports (HTML, JSON, CSV)")
+    audit_parser.add_argument("--report", "-r", type=str, default="audit_report", help="Base filename for generated reports (HTML, JSON, CSV)")
 
     # proxy fetch / list
     def add_filter_args(p):
-        p.add_argument("--source", choices=["all", "geonode", "proxyscrape"], default="all", help="Proxy provider source")
+        p.add_argument("--source", "-s", choices=["all", "geonode", "proxyscrape"], default="all", help="Proxy provider source")
         p.add_argument("--protocol", choices=["http", "socks4", "socks5", "all"], default="all", help="Proxy protocol")
-        p.add_argument("--country", type=str, help="Country code filter (e.g. US, DE, IN, ES, CN)")
+        p.add_argument("--country", "-c", type=str, help="Country code filter (e.g. US, DE, IN, ES, CN)")
         p.add_argument("--anonymity", choices=["elite", "anonymous", "transparent", "all"], default="all", help="Anonymity level")
         p.add_argument("--ssl", action="store_true", help="SSL/HTTPS support only")
         p.add_argument("--max-timeout", type=int, help="Maximum API latency in milliseconds")
-        p.add_argument("--limit", type=int, default=15, help="Number of proxies to fetch/display")
+        p.add_argument("--limit", "-n", type=int, default=15, help="Number of proxies to fetch/display")
         p.add_argument("--output", "-o", type=str, help="Output file path (e.g. proxies.txt or proxies.json)")
         p.add_argument("--format", choices=["txt", "json"], default="txt", help="Output format")
 
-    fetch_p = proxy_sub.add_parser("fetch", help="Fetch and filter free proxies")
+    fetch_p = proxy_sub.add_parser("fetch", aliases=["f"], help="Fetch and filter free proxies")
     add_filter_args(fetch_p)
 
-    list_p = proxy_sub.add_parser("list", help="List free proxies in formatted table")
+    list_p = proxy_sub.add_parser("list", aliases=["l", "ls"], help="List free proxies in formatted table")
     add_filter_args(list_p)
 
-    check_p = proxy_sub.add_parser("check", help="Test live proxy connectivity and measure roundtrip latency")
+    check_p = proxy_sub.add_parser("check", aliases=["c", "test"], help="Test live proxy connectivity and measure roundtrip latency")
     add_filter_args(check_p)
-    check_p.add_argument("--workers", type=int, default=15, help="Number of concurrent check threads")
+    check_p.add_argument("--workers", "-w", type=int, default=15, help="Number of concurrent check threads")
     check_p.add_argument("--timeout", type=int, default=4, help="Connection timeout in seconds")
     check_p.add_argument("--alive-only", action="store_true", help="Only save verified working proxies to output")
 
-    rand_p = proxy_sub.add_parser("random", help="Output a single working free proxy")
-    rand_p.add_argument("--source", choices=["all", "geonode", "proxyscrape"], default="all")
+    rand_p = proxy_sub.add_parser("random", aliases=["r", "rand"], help="Output a single working free proxy")
+    rand_p.add_argument("--source", "-s", choices=["all", "geonode", "proxyscrape"], default="all")
     rand_p.add_argument("--protocol", choices=["http", "socks4", "socks5", "all"], default="all")
-    rand_p.add_argument("--country", type=str)
+    rand_p.add_argument("--country", "-c", type=str)
     rand_p.add_argument("--anonymity", choices=["elite", "anonymous", "transparent", "all"], default="all")
 
     # Set default action on bare 'proxyshield proxy'
     add_filter_args(proxy_parser)
 
-    # banner subcommand
-    add_banner_parser(subparsers)
+    # banner subcommand (aliases: b)
+    banner_parser = subparsers.add_parser("banner", aliases=["b"], help="Custom typography banner generator")
+    banner_parser.add_argument("--text", "-t", type=str, help="Text to display in banner")
+    banner_parser.add_argument("--font", "-f", type=str, help="Font style (standard, block, 3d, huge, shadow, shade, console, slant, small, banner, digital)")
+    banner_parser.add_argument("--color", type=str, help="Single color name, hex code (#ff5500), or 'rainbow'")
+    banner_parser.add_argument("--gradient", "-g", type=str, help="Two comma-separated colors (e.g. 'red,blue' or '#ff5500,#00ffff')")
+    banner_parser.add_argument("--align", "-a", type=str, choices=["left", "center", "right"], help="Text alignment")
+    banner_parser.add_argument("--effect", "-e", type=str, choices=["shade", "shadow", "3d", "outline", "none"], help="Text visual effect")
+    banner_parser.add_argument("--list-fonts", action="store_true", help="List all available fonts")
+    banner_parser.add_argument("--preview", action="store_true", help="Showcase preview gallery of fonts and effects")
 
-    # config subcommand
-    config_parser = subparsers.add_parser("config", help="Manage branding configuration")
+    # config subcommand (aliases: c, cfg)
+    config_parser = subparsers.add_parser("config", aliases=["c", "cfg"], help="Manage branding configuration")
     config_sub = config_parser.add_subparsers(dest="action", required=True)
 
-    config_sub.add_parser("show", help="Show active configuration")
-    config_sub.add_parser("validate", help="Validate configuration keys and security")
-    config_sub.add_parser("edit", help="Edit configuration in $EDITOR")
+    config_sub.add_parser("show", aliases=["s"], help="Show active configuration")
+    config_sub.add_parser("validate", aliases=["v", "val"], help="Validate configuration keys and security")
+    config_sub.add_parser("edit", aliases=["e"], help="Edit configuration in $EDITOR")
 
-    reset_p = config_sub.add_parser("reset", help="Reset configuration to defaults")
+    reset_p = config_sub.add_parser("reset", aliases=["r"], help="Reset configuration to defaults")
     reset_p.add_argument("-y", "--yes", action="store_true", help="Skip confirmation prompt")
 
-    perm_p = config_sub.add_parser("permissions", help="Verify and secure configuration file permissions")
+    perm_p = config_sub.add_parser("permissions", aliases=["p", "perm"], help="Verify and secure configuration file permissions")
     perm_p.add_argument("--fix", action="store_true", help="Automatically enforce 0600 permissions")
 
     return parser
+
+
+def normalize_aliases(args: argparse.Namespace) -> argparse.Namespace:
+    """Normalizes short-form command and action aliases."""
+    cmd_map = {
+        "p": "proxy", "proxies": "proxy",
+        "a": "audit", "scan": "audit",
+        "b": "banner",
+        "c": "config", "cfg": "config",
+    }
+    action_map = {
+        "f": "fetch", "l": "list", "ls": "list",
+        "c": "check", "test": "check", "r": "random", "rand": "random",
+        "s": "show", "v": "validate", "val": "validate", "e": "edit",
+        "p": "permissions", "perm": "permissions"
+    }
+
+    if hasattr(args, "command") and args.command in cmd_map:
+        args.command = cmd_map[args.command]
+
+    if hasattr(args, "proxy_action") and args.proxy_action in action_map:
+        args.proxy_action = action_map[args.proxy_action]
+
+    if hasattr(args, "action") and args.action in action_map:
+        args.action = action_map[args.action]
+
+    return args
 
 
 def main(argv: List[str] = None) -> int:
     """Main CLI execution flow."""
     parser = build_parser()
     args = parser.parse_args(argv)
+    args = normalize_aliases(args)
 
     if args.command == "audit":
         return handle_audit_cli(args)

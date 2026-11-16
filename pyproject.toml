@@ -34,4 +34,5 @@ Homepage = "https://quarkova.com"
 
 [project.scripts]
 proxyshield = "proxyshield.cli:main"
+pxs = "proxyshield.cli:main"
 
