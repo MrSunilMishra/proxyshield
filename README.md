@@ -3,9 +3,11 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python: 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![Platform: Linux | Termux | macOS | Windows](https://img.shields.io/badge/platform-Linux%20%7C%20Termux%20%7C%20macOS%20%7C%20Windows-green.svg)](https://github.com/MrSunilMishra/proxyshield)
+[![Docs: GitHub Pages](https://img.shields.io/badge/docs-GitHub%20Pages-brightgreen.svg)](https://mrsunilmishra.github.io/proxyshield/)
 [![Organization: Quarkova](https://img.shields.io/badge/organization-Quarkova-orange.svg)](https://quarkova.com)
 
-> **Advanced Public Proxy Intelligence, Transparency & Authorized Network Security Auditing Engine.**
+> **Advanced Public Proxy Intelligence, Transparency & Authorized Network Security Auditing Engine.**  
+> Built with strict Direct-IP Protection, Multi-Source Public Proxy Aggregation, CFonts Terminal Typography, and Automated Multi-Format Reporting.
 
 ```
              _____                      _____ _     _      _     _
@@ -24,6 +26,35 @@
 
 ---
 
+## 📑 Table of Contents
+
+- [⚠️ Privacy & Legal Transparency Notice](#️-privacy--legal-transparency-notice)
+- [🌟 Core Architecture & Capabilities](#-core-architecture--capabilities)
+- [⚡ Instant 1-Click Automated Setup](#-instant-1-click-automated-setup-zero-effort)
+- [📥 Manual Download Options](#-manual-download-options)
+- [🚀 How to Install & Run](#-how-to-install--run)
+  - [Recommended: Isolated Setup with `uv`](#-recommended-fast--isolated-setup-with-uv-zero-system-pollution)
+  - [Alternative: Standard Python Setup](#alternative-standard-python-setup-without-uv)
+- [🎯 How to Run the Tool](#-how-to-run-the-tool)
+- [⚡ Command Short-Form (`pxs`) & Aliases](#-command-short-form-pxs--quick-aliases)
+- [🌐 How to Use with Target URLs (Step-by-Step)](#-how-to-use-with-target-urls-step-by-step)
+  - [1. Auditing an Authorized Target URL](#1-auditing-an-authorized-target-url)
+  - [2. Opening and Viewing Generated HTML Reports](#2-how-to-open-and-view-generated-html-reports)
+  - [3. Piping Free Proxy URLs to External Tools (curl, browsers)](#3-using-free-proxy-urls-with-other-tools-curl-browsers-python)
+- [📖 Feature Guides & Deep Dives](#-feature-guides--deep-dives)
+  - [1. Interactive Startup Screen](#1-interactive-startup-screen)
+  - [2. Typography & Custom Banners](#2-generate-custom-typography-banners)
+  - [3. Free Proxy Pool & Live Diagnostics](#3-free-proxy-pool--network-diagnostics)
+  - [4. Strict Security Auditing & Firewall Diagnostics](#4-strict-proxy-security-auditing--firewall-diagnostics)
+  - [5. Configuration Management (`branding.txt`)](#5-configuration-management)
+  - [6. Shell & Bash Automation Integration](#6-bash-script-integration)
+- [🔒 Security & Permission Model](#-security--permission-model)
+- [🧪 Running Automated Tests](#-running-automated-tests)
+- [📁 Repository Structure](#-repository-structure)
+- [📜 Project Identity & License](#-project-identity--license)
+
+---
+
 ## ⚠️ Privacy & Legal Transparency Notice
 
 > [!IMPORTANT]
@@ -39,13 +70,14 @@
 
 ## 🌟 Core Architecture & Capabilities
 
-* **Public Proxy Discovery**: Configurable source registry pulling from **Geonode**, **ProxyScrape**, and manual imports (TXT/JSON). Tracks provider attribution, protocol (HTTP, HTTPS, SOCKS4, SOCKS5), and health history in SQLite.
-* **Strict Direct-IP Protection**: Zero direct-fallback enforcement. Discovers the operator's real public IP as a baseline; if an observed exit IP unexpectedly matches the operator's IP or a proxy fails, the request is immediately aborted.
+* **Public Proxy Discovery**: Configurable source registry pulling from **Geonode** and **ProxyScrape v4** APIs, plus manual imports (TXT/JSON). Tracks provider attribution, protocol (HTTP, HTTPS, SOCKS4, SOCKS5), latency, country, and health history in SQLite.
+* **Strict Direct-IP Protection**: Zero direct-fallback enforcement. Discovers the operator's real public IP as a baseline; if an observed exit IP unexpectedly matches the operator's IP or a proxy fails, the request is immediately aborted with a `DirectIPExposureError`.
 * **Multi-Proxy Security Auditing**: Executes low-rate, controlled HTTP requests across verified proxy endpoints against authorized targets.
 * **Firewall Diagnostic Categorization**: Accurately classifies responses: `SUCCESS`, `HTTP_403`, `HTTP_429`, `HTTP_5XX`, `TCP_FAIL`, `TLS_FAIL`, `DNS_FAIL`, `PROXY_FAIL`, and true `FIREWALL_BLOCK` (backed by server-side log evidence).
-* **Proxy Risk Scoring Engine**: Evaluates protocol security, HTTPS support, header leaks (`X-Forwarded-For`, `Via`), and assigns transparency labels: `Unverified`, `Verified Connectivity`, `High Risk`, and `Unavailable`.
-* **Advanced Multi-Format Reporting**: Generates comprehensive transparency reports in **HTML**, **JSON**, and **CSV**.
+* **Proxy Risk Scoring Engine**: Evaluates protocol security, HTTPS CONNECT support, header leaks (`X-Forwarded-For`, `Via`), and assigns transparency labels: `Unverified`, `Verified Connectivity`, `High Risk`, and `Unavailable`.
+* **Advanced Multi-Format Reporting**: Generates synchronized multi-format transparency reports in **HTML**, **JSON**, and **CSV**.
 * **CFonts Terminal Branding Engine**: 11 typography styles, 570+ FIGlet fonts, 24-bit TrueColor gradients, and owner-protected configuration (`chmod 600` / `700`).
+* **Instant Bootstrap Scripts**: Turnkey 1-click bootstrap scripts (`run.sh` / `run.bat`) that automatically install `uv`, build the environment, and run ProxyShield.
 
 ---
 
@@ -84,7 +116,7 @@ cd proxyshield
 
 ---
 
-## 📥 Manual Download & Installation Procedure
+## 📥 Manual Download Options
 
 Choose one of the two download options below:
 
@@ -176,10 +208,32 @@ pxs
 
 # 2. View global help and all options:
 pxs -h
+# (or: proxyshield --help)
 
-# 3. Check version:
+# 3. Check version & metadata:
 pxs -v
 ```
+
+---
+
+## ⚡ Command Short-Form (`pxs`) & Quick Aliases
+
+You can run commands using **either** `proxyshield` or the quick alias **`pxs`**:
+
+| Full Command | Short Alias (`pxs`) | Description |
+| :--- | :--- | :--- |
+| `proxyshield -h` / `--help` | `pxs -h` | Display global help and command overview |
+| `proxyshield -v` / `--version` | `pxs -v` | Display version, author (`Quarkova`), and license |
+| `proxyshield proxy` | `pxs p` | Query and display live free proxies |
+| `proxyshield proxy fetch` | `pxs p f` | Filter & fetch proxies (`--protocol`, `--country`) |
+| `proxyshield proxy check` | `pxs p c` | Concurrent live connectivity and latency check |
+| `proxyshield proxy random`| `pxs p r` | Get a single instant working proxy |
+| `proxyshield audit` | `pxs a` | Run strict-proxy security audit (`-t <URL>`) |
+| `proxyshield banner` | `pxs b` | Generate CFonts typography banner (`-t`, `-f`, `-g`) |
+| `proxyshield config` | `pxs c` | Configuration management (`show`, `validate`, `edit`) |
+
+> [!TIP]
+> Add `-h` or `--help` after any command or alias for contextual usage and options (e.g. `pxs p -h`, `pxs p f -h`, `pxs a -h`, `pxs b -h`).
 
 ---
 
@@ -206,8 +260,11 @@ pxs a -t "https://example.com" -n 15 -d 1.5 -r my_security_audit
    * `my_security_audit.json` (machine telemetry)
    * `my_security_audit.csv` (spreadsheet / SIEM log)
 
-#### How to Open and View the Generated HTML Report:
-* **On Windows:**
+---
+
+### 2. How to Open and View Generated HTML Reports
+
+* **On Windows (PowerShell or CMD):**
   ```powershell
   start my_security_audit.html
   ```
@@ -220,9 +277,11 @@ pxs a -t "https://example.com" -n 15 -d 1.5 -r my_security_audit
   xdg-open my_security_audit.html
   ```
 
+The generated HTML report includes interactive donut charts, risk score distributions, proxy latency comparisons, and detailed response logs.
+
 ---
 
-### 2. Using Free Proxy URLs with Other Tools (curl, browsers, Python)
+### 3. Using Free Proxy URLs with Other Tools (curl, browsers, Python)
 
 You can grab live, working proxy URLs directly from ProxyShield to use with `curl` or external tools:
 
@@ -241,30 +300,9 @@ pxs p f -s geonode --protocol socks5 -n 30 -o proxies.txt
 
 ---
 
-## ⚡ Command Short-Form (`pxs`) & Quick Aliases
+## 📖 Feature Guides & Deep Dives
 
-You can run commands using **either** `proxyshield` or the quick alias **`pxs`**:
-
-| Full Command | Short Alias (`pxs`) | Description |
-| :--- | :--- | :--- |
-| `proxyshield -h` | `pxs -h` | Display global help and quick command overview |
-| `proxyshield -v` | `pxs -v` | Display version and author metadata |
-| `proxyshield proxy` | `pxs p` | Query and display live free proxies |
-| `proxyshield proxy fetch` | `pxs p f` | Filter & fetch proxies (`--protocol`, `--country`) |
-| `proxyshield proxy check` | `pxs p c` | Concurrent live connectivity and latency check |
-| `proxyshield proxy random`| `pxs p r` | Get a single instant working proxy |
-| `proxyshield audit` | `pxs a` | Run strict-proxy security audit (`-t <URL>`) |
-| `proxyshield banner` | `pxs b` | Generate CFonts typography banner (`-t`, `-f`, `-g`) |
-| `proxyshield config` | `pxs c` | Configuration management (`show`, `validate`, `edit`) |
-
-> [!TIP]
-> Add `-h` or `--help` after any command or alias for contextual usage and options (e.g. `pxs p -h`, `pxs a -h`, `pxs b -h`).
-
----
-
-## 📖 How to Use ProxyShield
-
-### 1. Launch Interactive Startup Screen
+### 1. Interactive Startup Screen
 
 Run `proxyshield` or `pxs` without arguments:
 
@@ -428,7 +466,7 @@ Manage and audit this configuration with the `proxyshield config` commands:
 
 ---
 
-### 4. Bash Script Integration
+### 6. Bash Script Integration
 
 If you are developing Bash or shell automation scripts, you can integrate ProxyShield branding **without executing unsafe `source` calls**:
 
@@ -476,11 +514,18 @@ pytest -v
 ```
 
 This validates:
-* Font style resolution across all 11 required styles.
-* TrueColor RGB and HEX parsing, interpolation, and gradient rendering.
+* Font style resolution across all 11 required CFonts styles and 570+ FIGlet fonts.
+* TrueColor RGB and HEX parsing, interpolation, multi-stop gradients, and rainbow rendering.
 * Halftone Unicode shade, shadow, 3D, and outline effects.
 * Configuration validation, security error handling, and reset routines.
-* Identity enforcement (verifying Author is always `Quarkova`).
+* Identity enforcement (verifying Author is strictly immutable as `Quarkova`).
+* Multi-source proxy fetching, parsing, and deduplication (ProxyScrape & Geonode).
+* Strict Direct-IP protection & zero direct-fallback enforcement (`DirectIPExposureError`).
+* Risk scoring algorithm, protocol verification, and leak detection.
+* Firewall response categorization (`FIREWALL_BLOCK`, `HTTP_403`, `HTTP_429`, etc.).
+* SQLite ORM database initialization, health tracking, and session recording.
+* Multi-format report generation (synchronized HTML, JSON, and CSV).
+* All CLI commands and short aliases (`pxs`, `p`, `a`, `b`, `c`, `f`, `c`, `r`, `-h`, `-v`).
 
 ---
 
@@ -489,24 +534,40 @@ This validates:
 ```
 proxyshield/
 ├── proxyshield/               # Core Python Package
-│   ├── __init__.py           # Package identity & metadata
-│   ├── cli.py                # Main CLI entry point (banner, config)
-│   ├── font_engine.py        # CFonts typography & effect engine
-│   ├── color_engine.py       # 24-bit TrueColor, gradients & rainbow
+│   ├── __init__.py           # Package identity & metadata (Author: Quarkova)
+│   ├── cli.py                # Unified CLI entry point & short aliases (pxs)
+│   ├── security_shield.py    # Strict Direct-IP protection & zero direct-fallback
+│   ├── proxy_engine.py       # Multi-source proxy aggregator (ProxyScrape & Geonode)
+│   ├── proxy_verifier.py     # Protocol verification, leak detection & risk scoring
+│   ├── auditor.py            # Low-rate target security auditor & firewall classifier
+│   ├── reporter.py           # Synchronized multi-format reporting (HTML/JSON/CSV)
+│   ├── db.py                 # SQLite ORM storage for proxy health & audit history
+│   ├── font_engine.py        # CFonts typography & effect engine (11 styles)
+│   ├── color_engine.py       # 24-bit TrueColor, multi-stop gradients & rainbow
 │   ├── config_manager.py     # Owner-protected config manager (0600/0700)
 │   ├── branding.py           # Branding badges & shell integration bridge
 │   └── banner.py             # Standalone banner & showcase preview
 ├── scripts/
+│   ├── pxs                   # Shell CLI short alias wrapper
 │   └── branding-preview.sh   # Turnkey safe Bash integration script
 ├── docs/
-│   └── BRANDING.md           # Deep-dive architecture & customization guide
-├── tests/                    # Automated pytest test suite
+│   ├── BRANDING.md           # Deep-dive architecture & typography guide
+│   └── index.html            # Documentation site mirror for GitHub Pages
+├── tests/                    # Automated pytest test suite (35 tests)
+│   ├── test_audit_and_shield.py
+│   ├── test_cli_aliases.py
 │   ├── test_color_engine.py
 │   ├── test_config.py
-│   └── test_font_and_banner.py
+│   ├── test_font_and_banner.py
+│   └── test_proxy_engine.py
+├── run.sh                    # 1-click bootstrap script for Linux/macOS/Termux
+├── run.bat                   # 1-click bootstrap script for Windows
+├── index.html                # Interactive GitHub Pages documentation website
 ├── branding.example.txt      # Factory default configuration template
 ├── pyproject.toml            # Build system & CLI entry point configuration
 ├── requirements.txt          # Python dependencies
+├── LICENSE                   # MIT License (Copyright Quarkova)
+├── project.md                # Technical requirements specification
 └── README.md                 # Complete user guide & documentation
 ```
 
@@ -514,11 +575,13 @@ proxyshield/
 
 ## 📜 Project Identity & License
 
-* **Tool Name**: ProxyShield
+* **Tool Name**: ProxyShield (`pxs`)
 * **Author / Organization**: [Quarkova](https://quarkova.com)
 * **Website**: [https://quarkova.com](https://quarkova.com)
 * **License**: [MIT](LICENSE) - Open Source Network Security & Diagnostics Toolkit
 * **Repository**: [https://github.com/MrSunilMishra/proxyshield.git](https://github.com/MrSunilMishra/proxyshield.git)
+* **Documentation**: [https://mrsunilmishra.github.io/proxyshield/](https://mrsunilmishra.github.io/proxyshield/)
 
 *Learn. Test. Secure.*
+
 
