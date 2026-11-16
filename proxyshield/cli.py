@@ -285,8 +285,17 @@ def build_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("-v", "--version", action="version", version=f"ProxyShield (pxs) v{__version__} by Quarkova")
+    parser.add_argument("-i", "--interactive", action="store_true", help="Launch interactive shell prompt (Termux-SSH style REPL)")
+    parser.add_argument("--menu", action="store_true", help="Display static branding banner and menu overview")
 
     subparsers = parser.add_subparsers(dest="command", help="Subcommand to execute (use -h with any subcommand)")
+
+    # interactive subcommand (aliases: i, shell, repl)
+    subparsers.add_parser(
+        "interactive",
+        aliases=["i", "shell", "repl"],
+        help="Launch interactive shell prompt (Termux-SSH style REPL)"
+    )
 
     # proxy subcommand (aliases: p, proxies)
     proxy_parser = subparsers.add_parser(
@@ -376,6 +385,7 @@ def normalize_aliases(args: argparse.Namespace) -> argparse.Namespace:
         "a": "audit", "scan": "audit",
         "b": "banner",
         "c": "config", "cfg": "config",
+        "i": "interactive", "shell": "interactive", "repl": "interactive",
     }
     action_map = {
         "f": "fetch", "l": "list", "ls": "list",
@@ -402,7 +412,13 @@ def main(argv: List[str] = None) -> int:
     args = parser.parse_args(argv)
     args = normalize_aliases(args)
 
-    if args.command == "audit":
+    if getattr(args, "interactive", False) or args.command == "interactive":
+        from proxyshield.interactive import start_interactive_shell
+        return start_interactive_shell()
+    elif getattr(args, "menu", False):
+        print_main_menu()
+        return 0
+    elif args.command == "audit":
         return handle_audit_cli(args)
     elif args.command == "proxy":
         return handle_proxy_cli(args)
@@ -411,8 +427,13 @@ def main(argv: List[str] = None) -> int:
     elif args.command == "config":
         return handle_config_cli(args)
     else:
-        print_main_menu()
-        return 0
+        # If running in an interactive terminal, launch the interactive shell!
+        if sys.stdin.isatty():
+            from proxyshield.interactive import start_interactive_shell
+            return start_interactive_shell()
+        else:
+            print_main_menu()
+            return 0
 
 
 if __name__ == "__main__":

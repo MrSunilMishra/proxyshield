@@ -621,28 +621,91 @@ cd proxyshield
           <h2>How to Run (`pxs` or `proxyshield`)</h2>
         </div>
         <p class="lead">
-          You can run commands using <strong>either</strong> the full name <code>proxyshield</code> or the ultra-fast short alias <strong><code>pxs</code></strong>:
+          ProxyShield offers two flexible modes: an <strong>Interactive Console (Termux-SSH style REPL)</strong> and <strong>Direct CLI One-Liners</strong>.
         </p>
+
+        <h3 style="color: var(--primary); margin: 20px 0 10px;">Mode 1: Interactive REPL Console (Termux-SSH Style)</h3>
+        <p>Run <code>pxs</code> without arguments to launch the interactive prompt:</p>
         <div class="code-wrapper">
           <div class="code-header">
-            <span>bash</span>
+            <span>bash / PowerShell / Termux</span>
             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
           </div>
-          <pre><code><span class="comment"># 1. Launch interactive startup menu</span>
-<span class="cmd">pxs</span>
-<span class="comment"># (or: proxyshield)</span>
+          <pre><code><span class="cmd">pxs</span>
+<span class="comment"># (or: proxyshield, or pxs -i, or pxs interactive)</span></code></pre>
+        </div>
 
-<span class="comment"># 2. View Global Help & All Available Commands (-h or --help)</span>
+        <div class="terminal-window" style="margin: 20px 0;">
+          <div class="terminal-bar">
+            <span class="dot dot-red"></span>
+            <span class="dot dot-yellow"></span>
+            <span class="dot dot-green"></span>
+            <span class="terminal-title">ProxyShield Interactive Console</span>
+          </div>
+          <div class="terminal-content" style="color: #4ade80;">
++------------------------------------+
+|                                    |
+| &lt; ProxyShield &gt;                    |
+| --------------                     |
+|        \   ^__^                    |
+|         \  (oo)\_______            |
+|            (__)\       )\ /\       |
+|                ||----w |           |
+|                ||     ||           |
++------------------------------------+
+| A tool by Quarkova                 |
++------------------------------------+
+
+<span style="color: #facc15; font-weight: bold;">[Note]</span> <span style="color: #f1f5f9;">ProxyShield Public Proxy Intelligence & Authorized Security Auditor.</span>
+<span style="color: #4ade80; font-weight: bold;">ProxyShield</span> <span style="color: #facc15; font-weight: bold;">&gt;&gt;</span> <span style="color: #38bdf8;">help</span>
++-------------+------------------------------------------------------+
+|   command   |                     description                      |
++-------------+------------------------------------------------------+
+|    help     | show available commands and descriptions             |
+|    clear    | clears console screen                                |
+|    proxy    | fetch and display live free proxies                  |
+|    fetch    | fetch proxies with protocol/country filters          |
+|    check    | test live connectivity &amp; latency across proxies      |
+|   random    | get a single fast working proxy URL                  |
+|    audit    | conduct strict proxy security audit on target URL    |
+|     ip      | check operator real public IP &amp; direct-IP guard      |
+|   banner    | render CFonts typography branding banner             |
+|   config    | show, validate, or edit branding configuration       |
+|   report    | view / open generated audit security reports         |
+|   version   | display version, author (Quarkova) &amp; license         |
+|    exit     | exit ProxyShield interactive console                 |
++-------------+------------------------------------------------------+
+<span style="color: #4ade80; font-weight: bold;">ProxyShield</span> <span style="color: #facc15; font-weight: bold;">&gt;&gt;</span> 
+          </div>
+        </div>
+
+        <h3 style="color: var(--primary); margin: 30px 0 10px;">Mode 2: Direct CLI One-Liners</h3>
+        <p>You can also run any command directly from your terminal or scripts:</p>
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span>bash / PowerShell</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="comment"># View Global Help &amp; All Available Options (-h or --help)</span>
 <span class="cmd">pxs -h</span>
 
-<span class="comment"># 3. View Version & Author Information (-v or --version)</span>
-<span class="cmd">pxs -v</span></code></pre>
+<span class="comment"># View Version &amp; Author Information (-v or --version)</span>
+<span class="cmd">pxs -v</span>
+
+<span class="comment"># Get an instant fast working proxy URL</span>
+<span class="cmd">pxs p r</span>
+
+<span class="comment"># Run concurrent connectivity check on 15 proxies</span>
+<span class="cmd">pxs p c -n 15</span>
+
+<span class="comment"># Audit authorized target URL strictly through verified proxies</span>
+<span class="cmd">pxs a -t "https://example.com" -n 10</span></code></pre>
         </div>
 
         <div class="feature-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
           <div class="card">
             <h3><code>pxs p</code> (Proxy)</h3>
-            <p>Query, filter, and benchmark free proxies from Geonode & ProxyScrape. Add <code>-h</code> for sub-options.</p>
+            <p>Query, filter, and benchmark free proxies from Geonode &amp; ProxyScrape. Add <code>-h</code> for sub-options.</p>
           </div>
           <div class="card">
             <h3><code>pxs a</code> (Audit)</h3>

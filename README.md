@@ -199,19 +199,87 @@ pip install -e .
 
 ## 🎯 How to Run the Tool
 
-After activating your environment, you can run commands using **either** `proxyshield` or the short alias **`pxs`**:
+ProxyShield supports both an **Interactive Console (Termux-SSH Style REPL)** and **Direct CLI One-Liners**.
+
+### 🎮 Mode 1: Interactive Console (Termux-SSH Style Prompt)
+
+Simply run `pxs` without arguments to launch the interactive prompt:
 
 ```bash
-# 1. Launch main interactive menu & banner:
 pxs
-# (or: proxyshield)
+# (or: proxyshield, or pxs -i, or pxs interactive)
+```
 
-# 2. View global help and all options:
+You will see the interactive terminal interface:
+
+```
++------------------------------------+
+|                                    |
+| < ProxyShield >                    |
+| --------------                     |
+|        \   ^__^                    |
+|         \  (oo)\_______            |
+|            (__)\       )\ /\       |
+|                ||----w |           |
+|                ||     ||           |
++------------------------------------+
+| A tool by Quarkova                 |
++------------------------------------+
+
+[Note] ProxyShield Public Proxy Intelligence & Authorized Security Auditor.
+ProxyShield >> help
++-------------+------------------------------------------------------+
+|   command   |                     description                      |
++-------------+------------------------------------------------------+
+|    help     | show available commands and descriptions             |
+|    clear    | clears console screen                                |
+|    proxy    | fetch and display live free proxies                  |
+|    fetch    | fetch proxies with protocol/country filters          |
+|    check    | test live connectivity & latency across proxies      |
+|   random    | get a single fast working proxy URL                  |
+|    audit    | conduct strict proxy security audit on target URL    |
+|     ip      | check operator real public IP & direct-IP guard      |
+|   banner    | render CFonts typography branding banner             |
+|   config    | show, validate, or edit branding configuration       |
+|   report    | view / open generated audit security reports         |
+|   version   | display version, author (Quarkova) & license         |
+|    exit     | exit ProxyShield interactive console                 |
++-------------+------------------------------------------------------+
+ProxyShield >> 
+```
+
+Inside this interactive prompt, you can run any command directly:
+* `help` &mdash; Displays the ASCII command reference table.
+* `proxy` &mdash; Fetches and displays live free proxies.
+* `check` &mdash; Tests connectivity and measures latency of live proxies.
+* `random` &mdash; Returns an instant working proxy URL (e.g. `socks5://...`).
+* `audit` &mdash; Conducts a strict-proxy security audit (prompts for target URL or accepts `audit https://target.com`).
+* `ip` &mdash; Verifies your real public IP baseline and confirms Direct-IP guard is active.
+* `report` &mdash; Discovers generated HTML audit reports and opens the latest in your browser.
+* `clear` &mdash; Clears the terminal screen and refreshes the banner.
+* `exit` &mdash; Exits ProxyShield safely.
+
+---
+
+### 💻 Mode 2: Direct CLI One-Liners
+
+Run one-liner commands directly from your terminal:
+
+```bash
+# View global help and all options:
 pxs -h
-# (or: proxyshield --help)
 
-# 3. Check version & metadata:
+# Check version & metadata:
 pxs -v
+
+# Instant random working proxy:
+pxs p r
+
+# Filter proxies by protocol & country:
+pxs p f -s geonode --protocol socks5 -c US -n 20
+
+# Audit target URL strictly through verified proxies:
+pxs a -t "https://example.com" -n 10
 ```
 
 ---
@@ -536,6 +604,7 @@ proxyshield/
 ├── proxyshield/               # Core Python Package
 │   ├── __init__.py           # Package identity & metadata (Author: Quarkova)
 │   ├── cli.py                # Unified CLI entry point & short aliases (pxs)
+│   ├── interactive.py        # Termux-SSH style interactive REPL prompt engine
 │   ├── security_shield.py    # Strict Direct-IP protection & zero direct-fallback
 │   ├── proxy_engine.py       # Multi-source proxy aggregator (ProxyScrape & Geonode)
 │   ├── proxy_verifier.py     # Protocol verification, leak detection & risk scoring
@@ -553,12 +622,13 @@ proxyshield/
 ├── docs/
 │   ├── BRANDING.md           # Deep-dive architecture & typography guide
 │   └── index.html            # Documentation site mirror for GitHub Pages
-├── tests/                    # Automated pytest test suite (35 tests)
+├── tests/                    # Automated pytest test suite (39 tests)
 │   ├── test_audit_and_shield.py
 │   ├── test_cli_aliases.py
 │   ├── test_color_engine.py
 │   ├── test_config.py
 │   ├── test_font_and_banner.py
+│   ├── test_interactive.py
 │   └── test_proxy_engine.py
 ├── run.sh                    # 1-click bootstrap script for Linux/macOS/Termux
 ├── run.bat                   # 1-click bootstrap script for Windows
