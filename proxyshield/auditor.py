@@ -9,6 +9,7 @@ Website: https://quarkova.com
 
 import time
 import socket
+import ssl
 import datetime
 from urllib.parse import urlparse
 from typing import List, Dict, Any, Optional, Tuple
@@ -20,15 +21,22 @@ from proxyshield.db import get_session, AuditSession, AuditResult, ProxyRecord
 
 def collect_target_intelligence(target_url: str, resp: Optional[httpx.Response] = None) -> Dict[str, Any]:
     """
-    Collects web target metadata: DNS-resolved IP, service port,
-    server header, technologies (X-Powered-By), CDN/WAF detection,
-    and security headers.
+    Collects web target metadata & security profiling:
+    - Hostname & DNS-resolved IP
+    - Web service port availability (80, 443, 8080, 8443)
+    - SSL/TLS certificate details (TLS version, cipher, issuer, expiry)
+    - Server header & software version
+    - Framework / Backend technology (X-Powered-By)
+    - CDN & Web Application Firewall (WAF) detection
+    - Security headers audit (HSTS, CSP, X-Frame-Options, X-Content-Type-Options)
     """
     parsed = urlparse(target_url)
     hostname = parsed.hostname or ""
-    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+    scheme = parsed.scheme or "https"
+    default_port = 443 if scheme == "https" else 80
+    port = parsed.port or default_port
 
-    # DNS Resolution
+    # 1. DNS Resolution
     resolved_ip = "Unknown"
     if hostname:
         try:
@@ -36,14 +44,60 @@ def collect_target_intelligence(target_url: str, resp: Optional[httpx.Response] 
         except Exception as e:
             resolved_ip = f"Resolution error: {e}"
 
+    # 2. Web Service Ports Check (standard web service ports)
+    open_ports = []
+    test_ports = [80, 443, 8080, 8443]
+    if hostname and resolved_ip != "Unknown" and not resolved_ip.startswith("Resolution error"):
+        for p in test_ports:
+            try:
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                    s.settimeout(1.0)
+                    if s.connect_ex((hostname, p)) == 0:
+                        open_ports.append({
+                            "port": p,
+                            "service": "HTTPS" if p in (443, 8443) else "HTTP",
+                            "state": "OPEN"
+                        })
+            except Exception:
+                pass
+
+    # 3. SSL/TLS Certificate Analysis
+    ssl_info = {
+        "ssl_active": False,
+        "tls_version": "N/A",
+        "cipher": "N/A",
+        "issuer": "N/A",
+        "expires": "N/A"
+    }
+    if scheme == "https" and hostname:
+        try:
+            ctx = ssl.create_default_context()
+            with socket.create_connection((hostname, port), timeout=3.0) as sock:
+                with ctx.wrap_socket(sock, server_hostname=hostname) as ssock:
+                    cert = ssock.getpeercert()
+                    cipher = ssock.cipher()
+                    version = ssock.version()
+                    issuer_dict = dict(x[0] for x in cert.get('issuer', []))
+                    ssl_info = {
+                        "ssl_active": True,
+                        "tls_version": version or "TLS",
+                        "cipher": cipher[0] if cipher else "Unknown",
+                        "issuer": issuer_dict.get('organizationName') or issuer_dict.get('commonName', 'Unknown'),
+                        "expires": cert.get('notAfter', 'Unknown')
+                    }
+        except Exception:
+            pass
+
     intel = {
         "hostname": hostname,
         "resolved_ip": resolved_ip,
         "port": port,
-        "scheme": parsed.scheme or "https",
+        "scheme": scheme,
+        "open_web_ports": open_ports,
+        "ssl": ssl_info,
         "server": "Undisclosed / Hidden",
         "powered_by": "None disclosed",
-        "cdn_waf": "No CDN/WAF header detected",
+        "cdn_waf": "Direct Origin / No CDN header detected",
         "security_headers": {
             "strict_transport_security": "Missing",
             "content_security_policy": "Missing",
@@ -59,22 +113,22 @@ def collect_target_intelligence(target_url: str, resp: Optional[httpx.Response] 
         if "x-powered-by" in headers:
             intel["powered_by"] = headers["x-powered-by"]
 
-        # CDN / WAF Detection
+        # CDN & WAF Fingerprinting
         srv_lower = intel["server"].lower()
         if "cf-ray" in headers or "cf-cache-status" in headers or "cloudflare" in srv_lower:
-            intel["cdn_waf"] = "Cloudflare"
+            intel["cdn_waf"] = "Cloudflare WAF / CDN"
         elif "x-amz-cf-id" in headers or "x-amz-cf-pop" in headers:
             intel["cdn_waf"] = "Amazon CloudFront"
         elif "x-akamai-transformed" in headers or "akamai" in srv_lower:
-            intel["cdn_waf"] = "Akamai"
+            intel["cdn_waf"] = "Akamai Edge"
         elif "x-fastly-request-id" in headers:
-            intel["cdn_waf"] = "Fastly"
+            intel["cdn_waf"] = "Fastly CDN"
         elif "x-sucuri-id" in headers:
-            intel["cdn_waf"] = "Sucuri WAF"
+            intel["cdn_waf"] = "Sucuri Cloud WAF"
         elif "x-iinfo" in headers:
             intel["cdn_waf"] = "Imperva Incapsula"
 
-        # Security Headers
+        # Security Headers Audit
         sec_h = {
             "strict_transport_security": headers.get("strict-transport-security", "Missing"),
             "content_security_policy": "Present" if "content-security-policy" in headers else "Missing",
@@ -166,39 +220,27 @@ class NetworkAuditEngine:
         blocked = 0
         direct_exposure_prevented = 0
 
-        for proxy_item in proxies[:max_requests]:
+        discarded_dead = 0
+
+        for proxy_item in proxies:
+            # Stop once we have reached the desired number of verified target requests
+            if len(results) >= max_requests:
+                break
+
             proxy_url = proxy_item["proxy"]
-            total += 1
 
             # 1. Discover & Validate observed exit IP first (Strict Direct-IP Guard)
             try:
                 ok_exit, observed_exit_ip, _ = self.shield.check_proxy_exit_ip(proxy_url, timeout=timeout)
-                if not ok_exit:
-                    cat, evidence = "PROXY_FAIL", f"Failed to verify exit IP on {proxy_url}"
-                    res_entry = {
-                        "endpoint": proxy_url,
-                        "exit_ip": "unknown",
-                        "status_code": None,
-                        "category": cat,
-                        "evidence": evidence,
-                        "latency_ms": 0,
-                    }
-                    results.append(res_entry)
+                if not ok_exit or not observed_exit_ip:
+                    # Stale / dead proxy: discard immediately, do not clutter results with failed proxy
+                    discarded_dead += 1
                     continue
             except DirectIPExposureError as die:
                 direct_exposure_prevented += 1
-                res_entry = {
-                    "endpoint": proxy_url,
-                    "exit_ip": self.shield.operator_direct_ip,
-                    "status_code": None,
-                    "category": "DIRECT_IP_LEAK_PREVENTED",
-                    "evidence": str(die),
-                    "latency_ms": 0,
-                }
-                results.append(res_entry)
                 continue
 
-            # 2. Execute target test strictly via proxy
+            # 2. Execute target test strictly via verified proxy
             start_req = time.perf_counter()
             status_code = None
             exception_obj = None
@@ -218,10 +260,13 @@ class NetworkAuditEngine:
                 # Collect target technology intelligence from live response
                 target_intel = collect_target_intelligence(target_url, resp)
             except Exception as e:
-                exception_obj = e
+                # Proxy dropped connection to target: discard and try next proxy
+                discarded_dead += 1
+                continue
 
             elapsed_ms = int((time.perf_counter() - start_req) * 1000)
             category, evidence = self.classify_target_response(status_code, exception_obj)
+            total += 1
 
             res_entry = {
                 "endpoint": proxy_url,
@@ -249,6 +294,17 @@ class NetworkAuditEngine:
             # Respect low-rate safety delay
             if rate_limit_delay > 0:
                 time.sleep(rate_limit_delay)
+
+        # If all candidates died and zero requests succeeded, add a notice
+        if not results:
+            results.append({
+                "endpoint": "all_candidates_exhausted",
+                "exit_ip": "none",
+                "status_code": None,
+                "category": "PROXY_POOL_EXHAUSTED",
+                "evidence": f"Tested {discarded_dead} candidates from free pool; none maintained live connection to target. Fetching new proxies recommended.",
+                "latency_ms": 0,
+            })
 
         audit_rec.total_requests = total
         audit_rec.successful_requests = success

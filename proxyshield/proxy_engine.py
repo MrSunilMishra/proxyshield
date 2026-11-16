@@ -39,10 +39,15 @@ DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.
 
 
 def fetch_proxyscrape_proxies(timeout: int = 10) -> List[Dict[str, Any]]:
-    """Fetches and normalizes proxies from ProxyScrape v4 API."""
+    """Fetches and normalizes fresh proxies from ProxyScrape v4 API (no stale cache)."""
+    api_url = f"{PROXYSCRAPE_API_URL}&_nocache={int(time.time())}"
     req = urllib.request.Request(
-        PROXYSCRAPE_API_URL,
-        headers={"User-Agent": DEFAULT_USER_AGENT}
+        api_url,
+        headers={
+            "User-Agent": DEFAULT_USER_AGENT,
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache"
+        }
     )
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         payload = json.loads(resp.read().decode("utf-8"))
@@ -75,9 +80,16 @@ def fetch_proxyscrape_proxies(timeout: int = 10) -> List[Dict[str, Any]]:
 
 
 def fetch_geonode_proxies(limit: int = 500, timeout: int = 10) -> List[Dict[str, Any]]:
-    """Fetches and normalizes proxies from Geonode API."""
-    url = f"https://proxylist.geonode.com/api/proxy-list?page=1&limit={limit}&sort_by=responseTime&sort_type=asc"
-    req = urllib.request.Request(url, headers={"User-Agent": DEFAULT_USER_AGENT})
+    """Fetches and normalizes fresh proxies from Geonode API (no stale cache)."""
+    url = f"https://proxylist.geonode.com/api/proxy-list?page=1&limit={limit}&sort_by=responseTime&sort_type=asc&_nocache={int(time.time())}"
+    req = urllib.request.Request(
+        url,
+        headers={
+            "User-Agent": DEFAULT_USER_AGENT,
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            "Pragma": "no-cache"
+        }
+    )
     with urllib.request.urlopen(req, timeout=timeout) as resp:
         payload = json.loads(resp.read().decode("utf-8"))
 
