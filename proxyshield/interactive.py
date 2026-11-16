@@ -113,6 +113,8 @@ def handle_interactive_audit(cmd_args: List[str]) -> None:
         # Check if first arg is target or flags
         if cmd_args[0].startswith("http://") or cmd_args[0].startswith("https://"):
             target_url = cmd_args[0]
+        elif not cmd_args[0].startswith("-"):
+            target_url = cmd_args[0]
         else:
             # Parse flags
             import argparse
@@ -286,6 +288,25 @@ def handle_interactive_ip() -> None:
         print(colorize_text(f"Error checking IP: {e}", "bright_red"))
 
 
+def handle_interactive_banner(cmd_args: List[str]) -> None:
+    """Handles banner generation and previews in the interactive shell."""
+    from proxyshield.banner import display_font_preview, display_font_list
+    if not cmd_args:
+        banner = render_branding_banner()
+        print(banner)
+        return
+
+    first = cmd_args[0].lower()
+    if first in ("--preview", "-p", "preview"):
+        display_font_preview()
+    elif first in ("--list-fonts", "-l", "fonts", "list"):
+        display_font_list()
+    else:
+        text = " ".join(cmd_args)
+        banner = render_branding_banner(text_override=text)
+        print(banner)
+
+
 def start_interactive_shell() -> int:
     """Main interactive REPL loop."""
     print(get_interactive_header())
@@ -323,90 +344,91 @@ def start_interactive_shell() -> int:
             cmd = cmd_args[0].lower()
             cmd_args = cmd_args[1:]
 
-        if cmd in ("exit", "quit", "close", "q"):
-            print(colorize_text("[ProxyShield] Exiting. Stay safe and secure!", "bright_green"))
-            break
+        try:
+            if cmd in ("exit", "quit", "close", "q"):
+                print(colorize_text("[ProxyShield] Exiting. Stay safe and secure!", "bright_green"))
+                break
 
-        elif cmd in ("help", "?", "-h", "--help"):
-            print_interactive_help()
+            elif cmd in ("help", "?", "-h", "--help"):
+                print_interactive_help()
 
-        elif cmd in ("clear", "cls"):
-            os.system("cls" if os.name == "nt" else "clear")
-            print(get_interactive_header())
+            elif cmd in ("clear", "cls"):
+                os.system("cls" if os.name == "nt" else "clear")
+                print(get_interactive_header())
 
-        elif cmd in ("proxy", "proxies", "p"):
-            if cmd_args and cmd_args[0] in ("check", "c"):
-                handle_interactive_check(cmd_args[1:])
-            elif cmd_args and cmd_args[0] in ("random", "r"):
-                p = get_random_free_proxy(source="all")
-                if p:
-                    print(colorize_text(p.get("proxy", ""), "bright_green", bold=True))
+            elif cmd in ("proxy", "proxies", "p"):
+                if cmd_args and cmd_args[0] in ("check", "c"):
+                    handle_interactive_check(cmd_args[1:])
+                elif cmd_args and cmd_args[0] in ("random", "r"):
+                    p = get_random_free_proxy(source="all")
+                    if p:
+                        print(colorize_text(f"\n{p.get('proxy', '')}\n", "bright_green", bold=True))
+                    else:
+                        print(colorize_text("No working proxy found.", "bright_red"))
                 else:
-                    print("No working proxy found.")
-            else:
+                    handle_interactive_proxy(cmd_args)
+
+            elif cmd in ("fetch", "f"):
                 handle_interactive_proxy(cmd_args)
 
-        elif cmd in ("fetch", "f"):
-            handle_interactive_proxy(cmd_args)
+            elif cmd in ("check", "c"):
+                handle_interactive_check(cmd_args)
 
-        elif cmd in ("check", "c"):
-            handle_interactive_check(cmd_args)
-
-        elif cmd in ("random", "rand", "r"):
-            proto = cmd_args[0] if cmd_args else None
-            p = get_random_free_proxy(source="all", protocol=proto)
-            if p:
-                print(colorize_text(f"\n{p.get('proxy', '')}\n", "bright_green", bold=True))
-            else:
-                print(colorize_text("No matching free proxy found.", "bright_red"))
-
-        elif cmd in ("audit", "a", "scan"):
-            handle_interactive_audit(cmd_args)
-
-        elif cmd in ("ip", "myip", "guard"):
-            handle_interactive_ip()
-
-        elif cmd in ("banner", "b"):
-            text = " ".join(cmd_args) if cmd_args else None
-            banner = render_branding_banner(custom_text=text)
-            print(banner)
-
-        elif cmd in ("config", "cfg"):
-            sub = cmd_args[0] if cmd_args else "show"
-            path = get_config_path()
-            if sub == "show":
-                if not os.path.exists(path):
-                    path = ensure_config_exists()
-                print(colorize_text(f"\n--- ProxyShield Configuration ({path}) ---", "bright_cyan", bold=True))
-                with open(path, "r", encoding="utf-8") as f:
-                    print(f.read())
-            elif sub == "validate":
-                ok, errs = validate_config(path)
-                if ok:
-                    print(colorize_text("✓ Configuration is valid and secure.", "bright_green"))
+            elif cmd in ("random", "rand", "r"):
+                proto = cmd_args[0] if cmd_args else None
+                p = get_random_free_proxy(source="all", protocol=proto)
+                if p:
+                    print(colorize_text(f"\n{p.get('proxy', '')}\n", "bright_green", bold=True))
                 else:
-                    for e in errs:
-                        print(colorize_text(f"✗ {e}", "bright_red"))
-            elif sub == "edit":
-                open_editor(path)
-            elif sub == "reset":
-                reset_config(path)
-                print(colorize_text("✓ Configuration reset to defaults.", "bright_green"))
-            elif sub == "permissions":
-                ok, msg = check_permissions(path)
-                print(colorize_text(f"Permissions: {msg}", "bright_green" if ok else "bright_red"))
+                    print(colorize_text("No matching free proxy found.", "bright_red"))
 
-        elif cmd in ("report", "reports"):
-            handle_interactive_reports()
+            elif cmd in ("audit", "a", "scan"):
+                handle_interactive_audit(cmd_args)
 
-        elif cmd in ("version", "-v", "--version", "v"):
-            print(f"\n{colorize_text('ProxyShield', 'bright_green', bold=True)} v{__version__}")
-            print(f"Author       : {colorize_text(__author__, 'bright_cyan')}")
-            print(f"Organization : {colorize_text(__organization__, 'bright_cyan')}")
-            print(f"Website      : {colorize_text(__website__, 'bright_cyan')}")
-            print(f"License      : MIT Open Source Network Security & Diagnostics Toolkit\n")
+            elif cmd in ("ip", "myip", "guard"):
+                handle_interactive_ip()
 
-        else:
-            print(colorize_text(f"[!] Unknown command: '{cmd}'. Type 'help' for available commands.", "bright_yellow"))
+            elif cmd in ("banner", "b"):
+                handle_interactive_banner(cmd_args)
+
+            elif cmd in ("config", "cfg"):
+                sub = cmd_args[0] if cmd_args else "show"
+                path = get_config_path()
+                if sub == "show":
+                    if not os.path.exists(path):
+                        path = ensure_config_exists()
+                    print(colorize_text(f"\n--- ProxyShield Configuration ({path}) ---", "bright_cyan", bold=True))
+                    with open(path, "r", encoding="utf-8") as f:
+                        print(f.read())
+                elif sub == "validate":
+                    ok, errs = validate_config(path)
+                    if ok:
+                        print(colorize_text("✓ Configuration is valid and secure.", "bright_green"))
+                    else:
+                        for e in errs:
+                            print(colorize_text(f"✗ {e}", "bright_red"))
+                elif sub == "edit":
+                    open_editor(path)
+                elif sub == "reset":
+                    reset_config(path)
+                    print(colorize_text("✓ Configuration reset to defaults.", "bright_green"))
+                elif sub == "permissions":
+                    ok, msg = check_permissions(path)
+                    print(colorize_text(f"Permissions: {msg}", "bright_green" if ok else "bright_red"))
+
+            elif cmd in ("report", "reports"):
+                handle_interactive_reports()
+
+            elif cmd in ("version", "-v", "--version", "v"):
+                print(f"\n{colorize_text('ProxyShield', 'bright_green', bold=True)} v{__version__}")
+                print(f"Author       : {colorize_text(__author__, 'bright_cyan')}")
+                print(f"Organization : {colorize_text(__organization__, 'bright_cyan')}")
+                print(f"Website      : {colorize_text(__website__, 'bright_cyan')}")
+                print(f"License      : MIT Open Source Network Security & Diagnostics Toolkit\n")
+
+            else:
+                print(colorize_text(f"[!] Unknown command: '{cmd}'. Type 'help' for available commands.", "bright_yellow"))
+        except Exception as err:
+            print(colorize_text(f"[Error] Failed to execute '{cmd}': {err}", "bright_red"))
 
     return 0
