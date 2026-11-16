@@ -201,21 +201,34 @@ def handle_audit_cli(args: argparse.Namespace) -> int:
     # Fetch live candidate proxies
     needed = args.limit or 10
     print(colorize_text(f"\n[1/3] Gathering and pre-verifying live proxy pool (targeting {needed} active endpoints)...", "bright_cyan"))
-    raw_candidates = fetch_free_proxies(source="all", limit=max(30, needed * 3))
+    raw_candidates = fetch_free_proxies(source="all", limit=max(60, needed * 5))
     if not raw_candidates:
         print(colorize_text("Error: No proxies available for audit.", "bright_red"))
         return 1
 
-    print(colorize_text(f"Testing connectivity across {len(raw_candidates)} candidate endpoints concurrently...", "bright_yellow"))
-    diagnosed = diagnose_proxies_concurrent(raw_candidates, max_workers=15, timeout=3)
-    verified_alive = [p for p in diagnosed if p.get("verified_alive", False)]
+    print(colorize_text(f"Testing connectivity across candidate endpoints concurrently in-memory...", "bright_yellow"))
+    chunk_size = 35
+    verified_alive = []
+    for i in range(0, min(len(raw_candidates), 140), chunk_size):
+        chunk = raw_candidates[i:i + chunk_size]
+        diagnosed = diagnose_proxies_concurrent(chunk, max_workers=25, timeout=2.5)
+        for p in diagnosed:
+            if p.get("verified_alive", False):
+                detail = p.get("diagnostic_detail", "")
+                if "Exit IP: " in detail:
+                    exit_ip = detail.split("Exit IP: ")[-1].rstrip(")")
+                    if shield.operator_direct_ip and exit_ip.strip() == shield.operator_direct_ip.strip():
+                        continue
+                verified_alive.append(p)
+        if len(verified_alive) >= needed:
+            break
+
     if verified_alive:
-        verified_alive.sort(key=lambda x: x.get("measured_latency_ms", x.get("latency_ms", 9999)))
-        unverified = [p for p in raw_candidates if p not in verified_alive]
-        proxies = (verified_alive + unverified)[:max(needed * 2, 20)]
-        print(colorize_text(f"✓ Discovered {len(verified_alive)} verified responsive proxies (fastest: {proxies[0].get('measured_latency_ms', 0)}ms)", "bright_green"))
+        verified_alive.sort(key=lambda x: x.get("measured_latency_ms", 9999))
+        proxies = verified_alive[:needed]
+        print(colorize_text(f"✓ Discovered {len(proxies)} verified active proxies (latencies: {proxies[0].get('measured_latency_ms', 0)}ms - {proxies[-1].get('measured_latency_ms', 0)}ms)", "bright_green"))
     else:
-        proxies = raw_candidates[:max(needed * 2, 20)]
+        proxies = raw_candidates[:needed]
         print(colorize_text("Note: High network latency detected; proceeding with candidate endpoints.", "bright_yellow"))
 
     print(colorize_text(f"Beginning sequential low-rate testing across verified endpoints...", "bright_yellow"))

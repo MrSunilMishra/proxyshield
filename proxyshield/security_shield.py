@@ -10,9 +10,12 @@ Website: https://quarkova.com
 
 import time
 import socket
+import re
 import urllib.request
 from typing import Optional, Tuple, List
 import httpx
+
+IPV4_REGEX = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
 
 LEGAL_PRIVACY_NOTICE = (
     "ProxyShield uses publicly available third-party proxy services for educational "
@@ -94,7 +97,7 @@ class StrictProxyShield:
         """
         start = time.perf_counter()
         is_https_proxy = proxy_url.lower().startswith("https://")
-        endpoint = "https://api.ipify.org?format=text" if is_https_proxy else "http://httpbin.org/ip"
+        endpoint = "https://api.ipify.org?format=text" if is_https_proxy else "http://api.ipify.org?format=text"
 
         try:
             with httpx.Client(proxy=proxy_url, timeout=timeout) as client:
@@ -110,7 +113,8 @@ class StrictProxyShield:
                     else:
                         exit_ip = raw_text.split()[0].strip()
 
-                    if exit_ip and exit_ip != "unknown":
+                    # Strictly require valid IPv4 (blocks fake captive portals and router logins)
+                    if exit_ip and IPV4_REGEX.match(exit_ip):
                         # Enforce strict direct IP guard
                         self.verify_exit_ip(exit_ip)
                         return True, exit_ip, latency_ms

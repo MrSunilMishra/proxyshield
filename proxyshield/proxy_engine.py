@@ -57,9 +57,9 @@ def fetch_iplocate_proxies(protocol: Optional[str] = None, timeout: int = 8) -> 
         endpoints_to_fetch.append(("http", IPLOCATE_HTTP_URL))
     if proto_lower in ("https", "all"):
         endpoints_to_fetch.append(("https", IPLOCATE_HTTPS_URL))
-    if proto_lower in ("socks4", "all"):
+    if proto_lower == "socks4":
         endpoints_to_fetch.append(("socks4", IPLOCATE_SOCKS4_URL))
-    if proto_lower in ("socks5", "all"):
+    if proto_lower == "socks5":
         endpoints_to_fetch.append(("socks5", IPLOCATE_SOCKS5_URL))
 
     def _pull_raw(proto: str, feed_url: str) -> List[Dict[str, Any]]:
@@ -297,45 +297,33 @@ def fetch_free_proxies(
 
 def test_proxy_connectivity(
     proxy_url: str,
-    test_target: str = "http://httpbin.org/ip",
-    timeout: int = 4
+    test_target: Optional[str] = None,
+    timeout: int = 3
 ) -> Tuple[bool, int, str]:
     """
-    Tests live proxy connectivity and measures real round-trip latency in milliseconds.
-    Returns (is_alive, latency_ms, details).
+    Tests live proxy connectivity in-memory and measures real round-trip latency.
     Zero disk files created.
     """
+    import httpx
+    import re
+    ipv4_pattern = re.compile(r"^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$")
     start_time = time.perf_counter()
-    proto = proxy_url.split("://")[0].lower() if "://" in proxy_url else "http"
+    is_https = proxy_url.lower().startswith("https://")
+    endpoint = test_target or ("https://api.ipify.org?format=text" if is_https else "http://api.ipify.org?format=text")
 
-    targets = [test_target]
-    if test_target != "http://api.ipify.org?format=text":
-        targets.append("http://api.ipify.org?format=text")
-
-    last_err = "Connection timed out"
-    for target in targets:
-        try:
-            proxy_handler = urllib.request.ProxyHandler({
-                proto: proxy_url,
-                "http": proxy_url,
-                "https": proxy_url
-            })
-            opener = urllib.request.build_opener(proxy_handler)
-            req = urllib.request.Request(target, headers={"User-Agent": DEFAULT_USER_AGENT})
-
-            with opener.open(req, timeout=timeout) as resp:
-                _ = resp.read(256)
-                elapsed_ms = int((time.perf_counter() - start_time) * 1000)
-                return True, elapsed_ms, "Connected successfully"
-        except urllib.error.HTTPError as he:
+    try:
+        with httpx.Client(proxy=proxy_url, timeout=timeout) as client:
+            resp = client.get(endpoint)
             elapsed_ms = int((time.perf_counter() - start_time) * 1000)
-            return True, elapsed_ms, f"Connected (HTTP {he.code})"
-        except Exception as e:
-            last_err = str(e)
-            continue
-
-    elapsed_ms = int((time.perf_counter() - start_time) * 1000)
-    return False, elapsed_ms, last_err
+            if resp.status_code == 200:
+                txt = resp.text.strip()
+                if ipv4_pattern.match(txt):
+                    return True, elapsed_ms, f"Connected (Exit IP: {txt})"
+                return True, elapsed_ms, "Connected successfully"
+            return False, elapsed_ms, f"HTTP Error {resp.status_code}"
+    except Exception as e:
+        elapsed_ms = int((time.perf_counter() - start_time) * 1000)
+        return False, elapsed_ms, str(e)
 
 
 def diagnose_proxies_concurrent(
