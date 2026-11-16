@@ -49,7 +49,26 @@
 
 ---
 
-## 🚀 Step-by-Step Installation Procedure
+## 📥 How to Download ProxyShield
+
+Choose one of the two download options below:
+
+### Option A: Download via Git (Recommended)
+Open your terminal and run:
+```bash
+git clone https://github.com/MrSunilMishra/proxyshield.git
+cd proxyshield
+```
+
+### Option B: Download as ZIP (No Git Required)
+1. Download the ZIP package directly:  
+   👉 **[Download ProxyShield ZIP](https://github.com/MrSunilMishra/proxyshield/archive/refs/heads/main.zip)**
+2. Extract `proxyshield-main.zip` to a folder on your computer.
+3. Open a terminal or PowerShell inside the extracted `proxyshield-main` folder.
+
+---
+
+## 🚀 How to Install & Run
 
 ### ⚡ Recommended: Fast & Isolated Setup with `uv` (Zero System Pollution)
 
@@ -62,34 +81,27 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 # Windows (PowerShell):
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 
-# 2. Clone the repository
-git clone https://github.com/MrSunilMishra/proxyshield.git
-cd proxyshield
-
-# 3. Create isolated virtual environment
+# 2. Inside the proxyshield directory, create the virtual environment:
 uv venv .venv
 
-# 4. Activate the virtual environment
-# Linux / macOS / Termux:
+# 3. Activate the environment:
+# On Linux / macOS / Termux:
 source .venv/bin/activate
-# Windows (PowerShell):
+# On Windows PowerShell:
 .venv\Scripts\Activate.ps1
+# On Windows Command Prompt (CMD):
+.venv\Scripts\activate.bat
 
-# 5. Install ProxyShield in isolated environment
+# 4. Install ProxyShield & dependencies:
 uv pip install -e .[dev]
 ```
 
 ---
 
-### Alternative: Standard Python & Virtual Environment
-
-If you prefer standard Python tooling:
+### Alternative: Standard Python Setup (Without `uv`)
 
 #### 🐧 On Linux & macOS
 ```bash
-git clone https://github.com/MrSunilMishra/proxyshield.git
-cd proxyshield
-
 python3 -m venv .venv
 source .venv/bin/activate
 
@@ -99,12 +111,7 @@ pip install -e .
 
 #### 📱 On Android (Termux)
 ```bash
-pkg update && pkg upgrade -y
-pkg install python git -y
-
-git clone https://github.com/MrSunilMishra/proxyshield.git
-cd proxyshield
-
+pkg update && pkg install python git -y
 python -m venv .venv
 source .venv/bin/activate
 
@@ -112,11 +119,8 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-#### 🪟 On Windows (PowerShell)
+#### 🪟 On Windows (PowerShell / Command Prompt)
 ```powershell
-git clone https://github.com/MrSunilMishra/proxyshield.git
-cd proxyshield
-
 python -m venv .venv
 .venv\Scripts\Activate.ps1
 
@@ -124,12 +128,80 @@ pip install -r requirements.txt
 pip install -e .
 ```
 
-Verify your installation:
+---
+
+## 🎯 How to Run the Tool
+
+After activating your environment, you can run commands using **either** `proxyshield` or the short alias **`pxs`**:
+
 ```bash
-proxyshield --version
-# Or use the short-form alias:
+# 1. Launch main interactive menu & banner:
+pxs
+# (or: proxyshield)
+
+# 2. View global help and all options:
+pxs -h
+
+# 3. Check version:
 pxs -v
-# Output: ProxyShield (pxs) v1.0.0 by Quarkova
+```
+
+---
+
+## 🌐 How to Use with Target URLs (Step-by-Step)
+
+### 1. Auditing an Authorized Target URL
+To audit an authorized web server or API strictly through public proxies without exposing your real IP:
+
+```bash
+# Basic target audit (tests through 10 verified proxies):
+pxs a -t "https://example.com"
+
+# Audit with custom request delay and report name:
+pxs a -t "https://example.com" -n 15 -d 1.5 -r my_security_audit
+```
+
+**What Happens During the Audit:**
+1. **Direct-IP Guard:** ProxyShield automatically checks your real public IP first.
+2. **Zero Direct Fallback:** If any proxy fails, the request is aborted immediately; it will **never** fall back to your direct connection.
+3. **Leak Detection:** If an exit IP matches your real IP, ProxyShield blocks the request instantly.
+4. **Response Categorization:** Classifies HTTP `200`, `403` (WAF block), `429` (rate limit), `5xx` (server error), or timeout.
+5. **Generates 3 Reports:**
+   * `my_security_audit.html` (interactive web dashboard)
+   * `my_security_audit.json` (machine telemetry)
+   * `my_security_audit.csv` (spreadsheet / SIEM log)
+
+#### How to Open and View the Generated HTML Report:
+* **On Windows:**
+  ```powershell
+  start my_security_audit.html
+  ```
+* **On macOS:**
+  ```bash
+  open my_security_audit.html
+  ```
+* **On Linux:**
+  ```bash
+  xdg-open my_security_audit.html
+  ```
+
+---
+
+### 2. Using Free Proxy URLs with Other Tools (curl, browsers, Python)
+
+You can grab live, working proxy URLs directly from ProxyShield to use with `curl` or external tools:
+
+```bash
+# 1. Get an instant fast working proxy URL:
+pxs p r
+# Output: socks5://120.220.197.198:59999
+
+# 2. Use the proxy URL with curl to test IP masking:
+curl -x $(pxs p r) https://api.ipify.org
+# Output: 120.220.197.198 (Your real IP is protected!)
+
+# 3. Export working proxy URLs to a text file:
+pxs p f -s geonode --protocol socks5 -n 30 -o proxies.txt
 ```
 
 ---

@@ -483,15 +483,17 @@
     <aside class="sidebar">
       <h4>Documentation Guide</h4>
       <ul class="sidebar-menu">
-        <li><a href="#notice">⚠️ Legal Notice</a></li>
-        <li><a href="#install">1. Installation (uv)</a></li>
-        <li><a href="#quickstart">2. Startup & Quick Start</a></li>
-        <li><a href="#proxy">3. Free Proxy Aggregator</a></li>
-        <li><a href="#audit">4. Strict Security Auditing</a></li>
-        <li><a href="#typography">5. CFonts Typography</a></li>
-        <li><a href="#config">6. Configuration & Security</a></li>
-        <li><a href="#reporting">7. Multi-Format Reports</a></li>
-        <li><a href="#tests">8. Automated Testing</a></li>
+        <li><a href="#notice">⚠️ Legal Policy</a></li>
+        <li><a href="#download">📥 How to Download</a></li>
+        <li><a href="#install">⚡ How to Install</a></li>
+        <li><a href="#quickstart">🎯 How to Run (pxs)</a></li>
+        <li><a href="#url-usage">🌐 How to Use URLs</a></li>
+        <li><a href="#proxy">🛡️ Free Proxy Pool</a></li>
+        <li><a href="#audit">🔒 Security Audit</a></li>
+        <li><a href="#typography">🎨 Typography</a></li>
+        <li><a href="#config">⚙️ Config & Security</a></li>
+        <li><a href="#reporting">📊 Multi-Format Reports</a></li>
+        <li><a href="#tests">🧪 Automated Testing</a></li>
       </ul>
     </aside>
 
@@ -518,15 +520,48 @@
         </p>
       </section>
 
-      <!-- Step 1: Install -->
-      <section id="install">
+      <!-- Step 1: Download -->
+      <section id="download">
         <div class="section-header">
           <span class="step-number">1</span>
-          <h2>Step 1: Installation with `uv` (Zero System Pollution)</h2>
+          <h2>How to Download ProxyShield</h2>
         </div>
         <p class="lead">
-          We use <a href="https://github.com/astral-sh/uv" style="color:var(--primary);" target="_blank">uv</a> to install all dependencies
-          inside a local, isolated virtual environment (<code>.venv</code>). Your global system Python packages remain completely untouched.
+          Choose either the fast Git clone or direct ZIP download:
+        </p>
+        <div class="feature-grid">
+          <div class="card">
+            <div class="card-icon">📦</div>
+            <h3>Option A: Git Clone (Recommended)</h3>
+            <p>Clone the repository via terminal to get instant access to updates:</p>
+            <div class="code-wrapper" style="margin-top:10px;">
+              <pre><code>git clone https://github.com/MrSunilMishra/proxyshield.git
+cd proxyshield</code></pre>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-icon">💾</div>
+            <h3>Option B: Download as ZIP</h3>
+            <p>Download the full archive directly without needing Git installed:</p>
+            <div style="margin-top: 14px;">
+              <a href="https://github.com/MrSunilMishra/proxyshield/archive/refs/heads/main.zip" class="btn-github" style="display:inline-flex; width:fit-content; background:var(--primary); color:#000;">
+                ⬇️ Download ProxyShield.zip
+              </a>
+              <p style="font-size:12px; color:var(--text-muted); margin-top:8px;">Extract the ZIP and open terminal inside the folder.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 2: Install -->
+      <section id="install">
+        <div class="section-header">
+          <span class="step-number">2</span>
+          <h2>How to Install (Isolated with `uv`)</h2>
+        </div>
+        <p class="lead">
+          We recommend <a href="https://github.com/astral-sh/uv" style="color:var(--primary);" target="_blank">uv</a> to install dependencies
+          inside a local <code>.venv</code> without modifying your global system Python.
         </p>
 
         <!-- OS Selector -->
@@ -534,6 +569,7 @@
           <button class="os-tab active" onclick="switchOs(event, 'tab-linux')">Linux / macOS</button>
           <button class="os-tab" onclick="switchOs(event, 'tab-termux')">Android (Termux)</button>
           <button class="os-tab" onclick="switchOs(event, 'tab-win')">Windows PowerShell</button>
+          <button class="os-tab" onclick="switchOs(event, 'tab-cmd')">Windows CMD</button>
         </div>
 
         <!-- Linux / macOS -->
@@ -543,19 +579,15 @@
               <span>bash (Terminal)</span>
               <button class="copy-btn" onclick="copyCode(this)">Copy</button>
             </div>
-            <pre><code><span class="comment"># 1. Clone repository</span>
-git clone https://github.com/MrSunilMishra/proxyshield.git
-cd proxyshield
-
-<span class="comment"># 2. Create isolated virtual environment with uv</span>
+            <pre><code><span class="comment"># 1. Create isolated environment with uv</span>
 uv venv .venv
 source .venv/bin/activate
 
-<span class="comment"># 3. Install ProxyShield in editable mode</span>
+<span class="comment"># 2. Install ProxyShield & dependencies</span>
 uv pip install -e .[dev]
 
-<span class="comment"># 4. Verify installation</span>
-proxyshield --version</code></pre>
+<span class="comment"># 3. Verify installation</span>
+pxs -v</code></pre>
           </div>
         </div>
 
@@ -566,21 +598,17 @@ proxyshield --version</code></pre>
               <span>Termux (Android)</span>
               <button class="copy-btn" onclick="copyCode(this)">Copy</button>
             </div>
-            <pre><code><span class="comment"># 1. Update Termux & install Python and Git</span>
+            <pre><code><span class="comment"># 1. Update Termux & install Python</span>
 pkg update && pkg install python git -y
 
-<span class="comment"># 2. Clone repository & enter</span>
-git clone https://github.com/MrSunilMishra/proxyshield.git
-cd proxyshield
-
-<span class="comment"># 3. Set up virtual environment</span>
+<span class="comment"># 2. Setup virtual environment</span>
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 pip install -e .
 
-<span class="comment"># 4. Run ProxyShield</span>
-proxyshield</code></pre>
+<span class="comment"># 3. Run ProxyShield</span>
+pxs</code></pre>
           </div>
         </div>
 
@@ -591,44 +619,60 @@ proxyshield</code></pre>
               <span>PowerShell (Windows)</span>
               <button class="copy-btn" onclick="copyCode(this)">Copy</button>
             </div>
-            <pre><code><span class="comment"># 1. Clone repository</span>
-git clone https://github.com/MrSunilMishra/proxyshield.git
-cd proxyshield
-
-<span class="comment"># 2. Setup isolated venv with uv</span>
+            <pre><code><span class="comment"># 1. Setup isolated venv with uv</span>
 uv venv .venv
 .\.venv\Scripts\Activate.ps1
 
-<span class="comment"># 3. Install packages</span>
+<span class="comment"># 2. Install packages</span>
 uv pip install -e .[dev]
 
-<span class="comment"># 4. Run CLI</span>
-proxyshield</code></pre>
+<span class="comment"># 3. Run CLI</span>
+pxs</code></pre>
+          </div>
+        </div>
+
+        <!-- Windows CMD -->
+        <div id="tab-cmd" class="os-content">
+          <div class="code-wrapper">
+            <div class="code-header">
+              <span>Command Prompt (CMD)</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code><span class="comment">REM 1. Setup isolated venv with uv</span>
+uv venv .venv
+call .venv\Scripts\activate.bat
+
+<span class="comment">REM 2. Install packages</span>
+uv pip install -e .[dev]
+
+<span class="comment">REM 3. Run CLI</span>
+pxs</code></pre>
           </div>
         </div>
       </section>
 
-      <!-- Step 2: Quick Start -->
+      <!-- Step 3: How to Run -->
       <section id="quickstart">
         <div class="section-header">
-          <span class="step-number">2</span>
-          <h2>Step 2: Startup Screen & Short-Form Aliases (`pxs`)</h2>
+          <span class="step-number">3</span>
+          <h2>How to Run (`pxs` or `proxyshield`)</h2>
         </div>
         <p class="lead">
-          You can run commands using <strong>either</strong> the full name <code>proxyshield</code> or the ultra-fast short alias <strong><code>pxs</code></strong> (or <code>PxS</code>):
+          You can run commands using <strong>either</strong> the full name <code>proxyshield</code> or the ultra-fast short alias <strong><code>pxs</code></strong>:
         </p>
         <div class="code-wrapper">
           <div class="code-header">
             <span>bash</span>
             <button class="copy-btn" onclick="copyCode(this)">Copy</button>
           </div>
-          <pre><code><span class="comment"># Launch with short form</span>
+          <pre><code><span class="comment"># 1. Launch interactive startup menu</span>
 <span class="cmd">pxs</span>
+<span class="comment"># (or: proxyshield)</span>
 
-<span class="comment"># Global Help & Options (-h or --help)</span>
+<span class="comment"># 2. View Global Help & All Available Commands (-h or --help)</span>
 <span class="cmd">pxs -h</span>
 
-<span class="comment"># Version & Author Metadata (-v or --version)</span>
+<span class="comment"># 3. View Version & Author Information (-v or --version)</span>
 <span class="cmd">pxs -v</span></code></pre>
         </div>
 
@@ -639,7 +683,7 @@ proxyshield</code></pre>
           </div>
           <div class="card">
             <h3><code>pxs a</code> (Audit)</h3>
-            <p>Conduct strict-proxy security audits against authorized targets with zero direct-IP fallback.</p>
+            <p>Conduct strict-proxy security audits against authorized target URLs with zero direct-IP fallback.</p>
           </div>
           <div class="card">
             <h3><code>pxs b</code> (Banner)</h3>
@@ -649,6 +693,60 @@ proxyshield</code></pre>
             <h3><code>pxs c</code> (Config)</h3>
             <p>Manage <code>branding.txt</code> with owner-only <code>chmod 600</code> permissions.</p>
           </div>
+        </div>
+      </section>
+
+      <!-- Step 4: URL Usage -->
+      <section id="url-usage">
+        <div class="section-header">
+          <span class="step-number">4</span>
+          <h2>How to Use with Target URLs & External Tools</h2>
+        </div>
+        <p class="lead">
+          ProxyShield provides two primary ways to work with URLs: auditing authorized web targets and consuming live proxy URLs in tools like <code>curl</code> or browsers.
+        </p>
+
+        <div class="feature-grid">
+          <div class="card">
+            <h3>1. Auditing an Authorized Target URL</h3>
+            <p>Tests target response codes, latency, and firewall behavior strictly through verified proxies without exposing your real IP:</p>
+            <div class="code-wrapper" style="margin-top:10px;">
+              <pre><code><span class="comment"># Audit target URL across 10 verified proxies</span>
+<span class="cmd">pxs a</span> <span class="flag">-t</span> <span class="str">"https://example.com"</span>
+
+<span class="comment"># Customize delay (1.5s) & report name</span>
+<span class="cmd">pxs a</span> <span class="flag">-t</span> <span class="str">"https://example.com"</span> <span class="flag">-d</span> 1.5 <span class="flag">-r</span> audit_report</code></pre>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted); margin-top:8px;">
+              Generates <code>audit_report.html</code>, <code>audit_report.json</code>, and <code>audit_report.csv</code>.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>2. Using Proxy URLs with `curl` or Scripts</h3>
+            <p>Retrieve an instant working proxy URL and pipe it directly to network tools:</p>
+            <div class="code-wrapper" style="margin-top:10px;">
+              <pre><code><span class="comment"># Get single instant working proxy URL</span>
+<span class="cmd">pxs p r</span>
+<span class="comment"># Output: socks5://120.220.197.198:59999</span>
+
+<span class="comment"># Use the proxy URL with curl</span>
+curl -x $(pxs p r) https://api.ipify.org</code></pre>
+            </div>
+            <p style="font-size:12px; color:var(--text-muted); margin-top:8px;">
+              Your real public IP remains completely masked by the proxy.
+            </p>
+          </div>
+        </div>
+
+        <div class="notice-box" style="border-left-color: var(--primary); margin-top:20px;">
+          <h3>📊 How to Open and View Generated HTML Reports</h3>
+          <p>
+            After running an audit, open the generated HTML dashboard in your default browser:<br>
+            • <strong>Windows:</strong> <code>start audit_report.html</code><br>
+            • <strong>macOS:</strong> <code>open audit_report.html</code><br>
+            • <strong>Linux:</strong> <code>xdg-open audit_report.html</code>
+          </p>
         </div>
       </section>
 
