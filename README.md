@@ -279,11 +279,12 @@ pxs -v
 # Instant random working proxy:
 pxs p r
 
-# Filter proxies by protocol & country:
-pxs p f -s geonode --protocol socks5 -c US -n 20
+# Filter proxies by protocol & source (e.g. iplocate, geonode, proxyscrape):
+pxs p f -s iplocate --protocol http -n 20
+pxs p f -s iplocate --protocol https -n 20
 
-# Audit target URL strictly through verified proxies:
-pxs a -t "https://example.com" -n 10
+# Audit target URL strictly through verified proxies (zero disk files stored):
+pxs a -t "https://example.com" -n 5
 ```
 
 ---
@@ -490,22 +491,30 @@ proxyshield banner --list-fonts
 
 ### 3. Free Proxy Pool & Network Diagnostics
 
-ProxyShield includes a multi-source free proxy aggregator that pulls, deduplicates, benchmarks, and filters live proxies from both **Geonode** and **ProxyScrape** APIs:
-* **ProxyScrape v4 API**: `https://api.proxyscrape.com/v4/free-proxy-list/get?request=display_proxies&proxy_format=protocolipport&format=json`
+ProxyShield includes an advanced multi-source free proxy aggregator that pulls, deduplicates, benchmarks, and filters live proxies strictly in-memory from **iplocate**, **Geonode**, and **ProxyScrape**:
+* **iplocate GitHub Live In-Memory Feeds** *(Zero disk storage)*:
+  * HTTP: `https://raw.githubusercontent.com/iplocate/free-proxy-list/refs/heads/main/protocols/http.txt`
+  * HTTPS: `https://raw.githubusercontent.com/iplocate/free-proxy-list/refs/heads/main/protocols/https.txt`
 * **Geonode Proxy API**: `https://proxylist.geonode.com/api/proxy-list?page=1&limit=500&sort_by=responseTime&sort_type=asc`
+* **ProxyScrape v4 API**: `https://api.proxyscrape.com/v4/free-proxy-list/get?request=display_proxies&proxy_format=protocolipport&format=json`
+
+> [!NOTE]
+> **Strict Zero-Disk Storage:** ProxyShield streams proxy lists directly into RAM without saving or keeping text files on disk. Every proxy is checked in-memory before sending requests, and dead proxies are immediately discarded.
 
 #### Fetch & Filter Free Proxies
 ```bash
-# Fetch fastest live proxies combining both Geonode and ProxyScrape (default)
+# Fetch live proxies in-memory (prioritizing fresh iplocate feeds):
 proxyshield proxy
 
-# Specify provider source (--source all | geonode | proxyscrape)
+# Specify provider source (--source all | iplocate | geonode | proxyscrape):
+proxyshield proxy fetch --source iplocate --protocol http --limit 20
+proxyshield proxy fetch --source iplocate --protocol https --limit 20
 proxyshield proxy fetch --source geonode --limit 20
 proxyshield proxy fetch --source proxyscrape --limit 20
 
-# Filter by protocol (http, socks4, socks5)
-proxyshield proxy fetch --protocol socks5 --limit 15
-proxyshield proxy fetch --protocol http --ssl
+# Filter by protocol (http, https, socks4, socks5):
+proxyshield proxy fetch --protocol http --limit 15
+proxyshield proxy fetch --protocol https --limit 15
 
 # Filter by country code and anonymity level (elite, anonymous)
 proxyshield proxy fetch --country US --anonymity elite
