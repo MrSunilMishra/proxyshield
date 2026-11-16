@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ProxyShield | Advanced Public Proxy Intelligence & Transparency Engine</title>
+  <meta name="description" content="Step-by-step user guide for ProxyShield: advanced CFonts terminal typography, multi-source free proxy aggregator (Geonode & ProxyScrape), and strict direct-IP security auditing.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --bg-card: #0f172a;
+      --bg-card-hover: #172554;
+      --bg-code: #070b14;
+      --border-color: #1e293b;
+      --border-glow: #38bdf840;
+      --primary: #38bdf8;
+      --primary-glow: #00f2fe;
+      --accent: #facc15;
+      --success: #10b981;
+      --danger: #ef4444;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(9, 13, 22, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 14px 24px;
+    }
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--primary);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+    .logo-badge {
+      background: #1e293b;
+      color: var(--accent);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid #334155;
+    }
+    nav ul {
+      display: flex;
+      list-style: none;
+      gap: 22px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    nav a {
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    nav a:hover { color: var(--primary); }
+    .btn-github {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-github:hover {
+      background: #334155;
+      border-color: var(--primary);
+    }
+
+    /* Hero Section */
+    .hero {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 24px 40px;
+      text-align: center;
+    }
+    .hero-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--primary);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+    h1.hero-title {
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.15;
+      margin-bottom: 18px;
+      background: linear-gradient(135deg, #ffffff 40%, #38bdf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    p.hero-desc {
+      font-size: 17px;
+      color: var(--text-muted);
+      max-width: 760px;
+      margin: 0 auto 32px;
+    }
+
+    /* Terminal ASCII Hero Display */
+    .terminal-window {
+      max-width: 860px;
+      margin: 0 auto 50px;
+      background: var(--bg-code);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px -15px rgba(0,0,0,0.7), 0 0 25px rgba(56, 189, 248, 0.1);
+      text-align: left;
+    }
+    .terminal-bar {
+      background: #0d1322;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #1e293b;
+      gap: 8px;
+    }
+    .dot { width: 11px; height: 11px; border-radius: 50%; }
+    .dot-red { background: #ef4444; }
+    .dot-yellow { background: #eab308; }
+    .dot-green { background: #22c55e; }
+    .terminal-title {
+      color: var(--text-muted);
+      font-size: 12px;
+      font-family: 'Fira Code', monospace;
+      margin-left: 10px;
+    }
+    .terminal-content {
+      padding: 20px 24px;
+      font-family: 'Fira Code', monospace;
+      font-size: 12.5px;
+      line-height: 1.45;
+      overflow-x: auto;
+      color: #38bdf8;
+      white-space: pre;
+    }
+
+    /* Layout */
+    .main-layout {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 40px;
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      position: sticky;
+      top: 90px;
+      height: fit-content;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 20px;
+    }
+    .sidebar h4 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+    .sidebar-menu {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13.5px;
+    }
+    .sidebar-menu a {
+      color: var(--text-muted);
+      text-decoration: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      display: block;
+      transition: all 0.2s;
+    }
+    .sidebar-menu a:hover {
+      background: #1e293b;
+      color: var(--primary);
+    }
+
+    /* Main Content Area */
+    .content-area section {
+      margin-bottom: 56px;
+      scroll-margin-top: 100px;
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .step-number {
+      background: var(--primary);
+      color: #000;
+      font-weight: 800;
+      font-size: 13px;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: #fff;
+    }
+    p.lead {
+      color: var(--text-muted);
+      font-size: 15px;
+      margin-bottom: 20px;
+    }
+
+    /* Legal Notice Box */
+    .notice-box {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 18px 22px;
+      margin-bottom: 24px;
+    }
+    .notice-box h3 {
+      font-size: 15px;
+      color: var(--accent);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .notice-box p {
+      font-size: 13.5px;
+      color: #cbd5e1;
+      line-height: 1.6;
+    }
+
+    /* Code Blocks */
+    .code-wrapper {
+      position: relative;
+      background: var(--bg-code);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin: 14px 0 20px;
+      overflow: hidden;
+    }
+    .code-header {
+      background: #0f172a;
+      padding: 8px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: 'Fira Code', monospace;
+    }
+    .copy-btn {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: var(--text-muted);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .copy-btn:hover {
+      background: #334155;
+      color: #fff;
+    }
+    pre code {
+      display: block;
+      padding: 16px;
+      font-family: 'Fira Code', monospace;
+      font-size: 13px;
+      color: #e2e8f0;
+      line-height: 1.6;
+      overflow-x: auto;
+    }
+    .comment { color: #64748b; }
+    .keyword { color: #f43f5e; font-weight: 600; }
+    .cmd { color: #38bdf8; font-weight: 600; }
+    .flag { color: #facc15; }
+    .str { color: #34d399; }
+
+    /* OS Tabs */
+    .os-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: -1px;
+    }
+    .os-tab {
+      background: #1e293b;
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      border-top-left-radius: 6px;
+      border-top-right-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .os-tab.active {
+      background: var(--bg-code);
+      color: var(--primary);
+      border-color: var(--border-color);
+    }
+    .os-content { display: none; }
+    .os-content.active { display: block; }
+
+    /* Feature Grid Cards */
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 18px;
+      margin: 20px 0;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 20px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: var(--primary-glow);
+    }
+    .card-icon {
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+    .card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .card p {
+      font-size: 13.5px;
+      color: var(--text-muted);
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 30px 24px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    footer a { color: var(--primary); text-decoration: none; }
+
+    @media (max-width: 900px) {
+      .main-layout { grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      nav ul { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="nav-container">
+      <a href="#" class="logo">
+        <span>🛡️ ProxyShield</span>
+        <span class="logo-badge">v1.0.0</span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="#notice">Legal Notice</a></li>
+          <li><a href="#install">Installation</a></li>
+          <li><a href="#quickstart">Quick Start</a></li>
+          <li><a href="#proxy">Free Proxy Pool</a></li>
+          <li><a href="#audit">Security Audit</a></li>
+          <li><a href="#typography">Typography</a></li>
+          <li><a href="#config">Config & Security</a></li>
+        </ul>
+      </nav>
+      <a href="https://github.com/MrSunilMishra/proxyshield.git" target="_blank" class="btn-github">
+        <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor">
+          <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+        </svg>
+        GitHub Repo
+      </a>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-pill">
+      <span>✨ Official Documentation</span>
+      <span>•</span>
+      <span>Author: Quarkova</span>
+    </div>
+    <h1 class="hero-title">Advanced Public Proxy Intelligence & Transparency Engine</h1>
+    <p class="hero-desc">
+      A powerful terminal auditing toolkit featuring multi-source free proxy discovery (Geonode & ProxyScrape),
+      strict direct-IP protection, CFonts-style ASCII typography, and multi-format reporting.
+    </p>
+
+    <!-- Terminal Window -->
+    <div class="terminal-window">
+      <div class="terminal-bar">
+        <span class="dot dot-red"></span>
+        <span class="dot dot-yellow"></span>
+        <span class="dot dot-green"></span>
+        <span class="terminal-title">proxyshield terminal startup screen</span>
+      </div>
+      <div class="terminal-content">
+             _____                      _____ _     _      _     _
+            |  __ \                    / ____| |   █_█    | |   | |
+            | |__█ | __ _____  ___   _| █___ | |__  _  ___| | __| |
+            |  ___/ ▓__/ _ \ \/ / | | |\___ \| ▓_ \| |/ _ \ |/ _▓ |
+            | |   | | | ▓_▓ ▓  ▓| |_| |____▓ | | | | |  __/ | ▓_| |
+            |_|   |_|  \___/_/\_\\__▒ |_____/|_| |_|_|\___|_|\__▒_|
+                                  __/ |
+                                 |___/
+
+                    v1.0.0 | Author: Quarkova | MIT License
+                            « Learn. Test. Secure. »
+                              https://quarkova.com
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Layout -->
+  <div class="main-layout">
+
+    <!-- Sticky Sidebar -->
+    <aside class="sidebar">
+      <h4>Documentation Guide</h4>
+      <ul class="sidebar-menu">
+        <li><a href="#notice">⚠️ Legal Notice</a></li>
+        <li><a href="#install">1. Installation (uv)</a></li>
+        <li><a href="#quickstart">2. Startup & Quick Start</a></li>
+        <li><a href="#proxy">3. Free Proxy Aggregator</a></li>
+        <li><a href="#audit">4. Strict Security Auditing</a></li>
+        <li><a href="#typography">5. CFonts Typography</a></li>
+        <li><a href="#config">6. Configuration & Security</a></li>
+        <li><a href="#reporting">7. Multi-Format Reports</a></li>
+        <li><a href="#tests">8. Automated Testing</a></li>
+      </ul>
+    </aside>
+
+    <!-- Content Area -->
+    <main class="content-area">
+
+      <!-- Step 0: Notice -->
+      <section id="notice">
+        <div class="section-header">
+          <h2>Legal & Privacy Transparency Policy</h2>
+        </div>
+        <div class="notice-box">
+          <h3>⚠️ Mandatory Transparency Statement (Section J)</h3>
+          <p>
+            <strong>"ProxyShield uses publicly available third-party proxy services for educational and authorized network security auditing.
+            The operator's direct public IP is not intentionally used for target requests in strict proxy-only mode.
+            Public proxy operators may observe, inspect or log traffic. ProxyShield does not guarantee anonymity, privacy or proxy security.
+            All testing must be conducted against authorized targets."</strong>
+          </p>
+        </div>
+        <p class="lead">
+          ProxyShield is strictly designed for defensive network diagnostics and educational security research.
+          It must <strong>NEVER</strong> be used to conduct DDoS attacks, flood server infrastructure, or evade security controls.
+        </p>
+      </section>
+
+      <!-- Step 1: Install -->
+      <section id="install">
+        <div class="section-header">
+          <span class="step-number">1</span>
+          <h2>Step 1: Installation with `uv` (Zero System Pollution)</h2>
+        </div>
+        <p class="lead">
+          We use <a href="https://github.com/astral-sh/uv" style="color:var(--primary);" target="_blank">uv</a> to install all dependencies
+          inside a local, isolated virtual environment (<code>.venv</code>). Your global system Python packages remain completely untouched.
+        </p>
+
+        <!-- OS Selector -->
+        <div class="os-tabs">
+          <button class="os-tab active" onclick="switchOs(event, 'tab-linux')">Linux / macOS</button>
+          <button class="os-tab" onclick="switchOs(event, 'tab-termux')">Android (Termux)</button>
+          <button class="os-tab" onclick="switchOs(event, 'tab-win')">Windows PowerShell</button>
+        </div>
+
+        <!-- Linux / macOS -->
+        <div id="tab-linux" class="os-content active">
+          <div class="code-wrapper">
+            <div class="code-header">
+              <span>bash (Terminal)</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code><span class="comment"># 1. Clone repository</span>
+git clone https://github.com/MrSunilMishra/proxyshield.git
+cd proxyshield
+
+<span class="comment"># 2. Create isolated virtual environment with uv</span>
+uv venv .venv
+source .venv/bin/activate
+
+<span class="comment"># 3. Install ProxyShield in editable mode</span>
+uv pip install -e .[dev]
+
+<span class="comment"># 4. Verify installation</span>
+proxyshield --version</code></pre>
+          </div>
+        </div>
+
+        <!-- Android Termux -->
+        <div id="tab-termux" class="os-content">
+          <div class="code-wrapper">
+            <div class="code-header">
+              <span>Termux (Android)</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code><span class="comment"># 1. Update Termux & install Python and Git</span>
+pkg update && pkg install python git -y
+
+<span class="comment"># 2. Clone repository & enter</span>
+git clone https://github.com/MrSunilMishra/proxyshield.git
+cd proxyshield
+
+<span class="comment"># 3. Set up virtual environment</span>
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+pip install -e .
+
+<span class="comment"># 4. Run ProxyShield</span>
+proxyshield</code></pre>
+          </div>
+        </div>
+
+        <!-- Windows PowerShell -->
+        <div id="tab-win" class="os-content">
+          <div class="code-wrapper">
+            <div class="code-header">
+              <span>PowerShell (Windows)</span>
+              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+            </div>
+            <pre><code><span class="comment"># 1. Clone repository</span>
+git clone https://github.com/MrSunilMishra/proxyshield.git
+cd proxyshield
+
+<span class="comment"># 2. Setup isolated venv with uv</span>
+uv venv .venv
+.\.venv\Scripts\Activate.ps1
+
+<span class="comment"># 3. Install packages</span>
+uv pip install -e .[dev]
+
+<span class="comment"># 4. Run CLI</span>
+proxyshield</code></pre>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 2: Quick Start -->
+      <section id="quickstart">
+        <div class="section-header">
+          <span class="step-number">2</span>
+          <h2>Step 2: Startup Screen & Main Menu</h2>
+        </div>
+        <p class="lead">
+          Running <code>proxyshield</code> without arguments displays the CFonts startup screen, system diagnostic badges, and available commands:
+        </p>
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span>bash</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="cmd">proxyshield</span></code></pre>
+        </div>
+      </section>
+
+      <!-- Step 3: Free Proxy Pool -->
+      <section id="proxy">
+        <div class="section-header">
+          <span class="step-number">3</span>
+          <h2>Step 3: Multi-Source Free Proxy Aggregator</h2>
+        </div>
+        <p class="lead">
+          ProxyShield integrates live proxy feeds from both <strong>Geonode API</strong> and <strong>ProxyScrape v4 API</strong>,
+          deduplicating endpoints, benchmarking latency, and filtering by protocol and geography.
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span>bash</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="comment"># 1. Fetch live proxies combining both Geonode & ProxyScrape</span>
+<span class="cmd">proxyshield proxy</span>
+
+<span class="comment"># 2. Fetch exclusively from Geonode or ProxyScrape</span>
+<span class="cmd">proxyshield proxy fetch</span> <span class="flag">--source</span> geonode <span class="flag">--limit</span> 20
+<span class="cmd">proxyshield proxy fetch</span> <span class="flag">--source</span> proxyscrape <span class="flag">--limit</span> 20
+
+<span class="comment"># 3. Filter by protocol (SOCKS5, HTTP, SOCKS4)</span>
+<span class="cmd">proxyshield proxy fetch</span> <span class="flag">--protocol</span> socks5 <span class="flag">--limit</span> 15
+<span class="cmd">proxyshield proxy fetch</span> <span class="flag">--protocol</span> http <span class="flag">--ssl</span>
+
+<span class="comment"># 4. Filter by Country (e.g. US, DE, CN, ES) & Anonymity</span>
+<span class="cmd">proxyshield proxy fetch</span> <span class="flag">--country</span> US <span class="flag">--anonymity</span> elite
+
+<span class="comment"># 5. Export results to .txt or .json</span>
+<span class="cmd">proxyshield proxy fetch</span> <span class="flag">--limit</span> 50 <span class="flag">--output</span> proxies.txt
+<span class="cmd">proxyshield proxy fetch</span> <span class="flag">--format</span> json <span class="flag">--output</span> proxies.json
+
+<span class="comment"># 6. Concurrently diagnose live connectivity & latency</span>
+<span class="cmd">proxyshield proxy check</span> <span class="flag">--limit</span> 15 <span class="flag">--timeout</span> 3
+
+<span class="comment"># 7. Grab a single instant working proxy</span>
+<span class="cmd">proxyshield proxy random</span> <span class="flag">--protocol</span> socks5</code></pre>
+        </div>
+      </section>
+
+      <!-- Step 4: Security Audit -->
+      <section id="audit">
+        <div class="section-header">
+          <span class="step-number">4</span>
+          <h2>Step 4: Strict-Proxy Security Auditing & Direct-IP Protection</h2>
+        </div>
+        <p class="lead">
+          Conduct controlled, low-rate HTTP security diagnostics against authorized targets strictly through public proxies.
+          <strong>Automatic direct connection fallback is permanently disabled</strong>.
+        </p>
+
+        <div class="notice-box" style="border-left-color: var(--primary);">
+          <h3>🛡️ Direct-IP Guard Mechanism (Section C)</h3>
+          <p>
+            Before testing any target, ProxyShield discovers the operator's actual public IP.
+            If the proxy's observed exit IP unexpectedly matches the operator's IP, or if the proxy fails,
+            the request is <strong>immediately aborted</strong> to prevent direct IP exposure.
+          </p>
+        </div>
+
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span>bash</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="comment"># Audit authorized target through 10 verified proxies</span>
+<span class="cmd">proxyshield audit</span> <span class="flag">--target</span> <span class="str">"https://example.com"</span> <span class="flag">--limit</span> 10
+
+<span class="comment"># Audit with custom rate limit delay (1.5 seconds) and save reports</span>
+<span class="cmd">proxyshield audit</span> <span class="flag">--target</span> <span class="str">"https://example.com"</span> <span class="flag">--delay</span> 1.5 <span class="flag">--report</span> audit_results</code></pre>
+        </div>
+      </section>
+
+      <!-- Step 5: Typography -->
+      <section id="typography">
+        <div class="section-header">
+          <span class="step-number">5</span>
+          <h2>Step 5: CFonts Typography & Banner Engine</h2>
+        </div>
+        <p class="lead">
+          Create dynamic ASCII typography banners supporting 11 core styles, 570+ FIGlet fonts, TrueColor gradients, and Unicode effects:
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span>bash</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="comment"># Custom text & font styles</span>
+<span class="cmd">proxyshield banner</span> <span class="flag">--text</span> <span class="str">"SECURITY SCAN"</span> <span class="flag">--font</span> 3d
+<span class="cmd">proxyshield banner</span> <span class="flag">--text</span> <span class="str">"FIREWALL"</span> <span class="flag">--font</span> huge
+
+<span class="comment"># TrueColor dual gradients & rainbow</span>
+<span class="cmd">proxyshield banner</span> <span class="flag">--gradient</span> red,blue
+<span class="cmd">proxyshield banner</span> <span class="flag">--gradient</span> <span class="str">"#ff5500,#00ffff"</span>
+<span class="cmd">proxyshield banner</span> <span class="flag">--color</span> rainbow
+
+<span class="comment"># Unicode Halftone Shading & 3D Extrusion</span>
+<span class="cmd">proxyshield banner</span> <span class="flag">--effect</span> shade  <span class="comment"># Halftone blocks: █ ▓ ▒ ░</span>
+<span class="cmd">proxyshield banner</span> <span class="flag">--effect</span> shadow <span class="comment"># Drop shadow blocks</span>
+<span class="cmd">proxyshield banner</span> <span class="flag">--effect</span> 3d     <span class="comment"># 3D edge borders</span>
+
+<span class="comment"># Alignment & Showcase Preview</span>
+<span class="cmd">proxyshield banner</span> <span class="flag">--align</span> center
+<span class="cmd">proxyshield banner</span> <span class="flag">--preview</span>
+<span class="cmd">proxyshield banner</span> <span class="flag">--list-fonts</span></code></pre>
+        </div>
+      </section>
+
+      <!-- Step 6: Config -->
+      <section id="config">
+        <div class="section-header">
+          <span class="step-number">6</span>
+          <h2>Step 6: Configuration Management & Security</h2>
+        </div>
+        <p class="lead">
+          Configuration is stored at <code>~/.config/proxyshield/branding.txt</code> with owner-only permissions
+          (<code>chmod 600</code> for file, <code>chmod 700</code> for directory).
+        </p>
+
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span>bash</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="comment"># Display active configuration</span>
+<span class="cmd">proxyshield config show</span>
+
+<span class="comment"># Validate keys, color hex codes, and permission security</span>
+<span class="cmd">proxyshield config validate</span>
+
+<span class="comment"># Edit in system editor ($EDITOR / nano / vim / notepad)</span>
+<span class="cmd">proxyshield config edit</span>
+
+<span class="comment"># Verify & enforce strict 0600 file security</span>
+<span class="cmd">proxyshield config permissions --fix</span>
+
+<span class="comment"># Reset to factory defaults (requests [y/N] confirmation)</span>
+<span class="cmd">proxyshield config reset</span></code></pre>
+        </div>
+      </section>
+
+      <!-- Step 7: Multi-Format Reports -->
+      <section id="reporting">
+        <div class="section-header">
+          <span class="step-number">7</span>
+          <h2>Step 7: Multi-Format Transparency Reports</h2>
+        </div>
+        <p class="lead">
+          Auditing automatically generates synchronized reports across three formats:
+        </p>
+        <div class="feature-grid">
+          <div class="card">
+            <div class="card-icon">📊</div>
+            <h3>HTML Dashboard</h3>
+            <p>Interactive executive report with response distribution charts, legal notices, and proxy exit IP breakdowns.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">⚡</div>
+            <h3>JSON Telemetry</h3>
+            <p>Structured machine-readable output with latency timings, risk scores, and full provider source attribution.</p>
+          </div>
+          <div class="card">
+            <div class="card-icon">📑</div>
+            <h3>CSV Export</h3>
+            <p>Standard tabular records ready for SIEM ingestion, firewall comparison, and spreadsheet analysis.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 8: Tests -->
+      <section id="tests">
+        <div class="section-header">
+          <span class="step-number">8</span>
+          <h2>Step 8: Running Automated Tests</h2>
+        </div>
+        <p class="lead">
+          ProxyShield includes an automated test suite verifying Direct-IP Protection, proxy discovery, font rendering, and SQLite persistence:
+        </p>
+        <div class="code-wrapper">
+          <div class="code-header">
+            <span>bash</span>
+            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          </div>
+          <pre><code><span class="cmd">pytest -v</span></code></pre>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div style="max-width: 1200px; margin: 0 auto;">
+      <p>
+        <strong>ProxyShield</strong> • Built by <a href="https://quarkova.com" target="_blank">Quarkova</a> •
+        Licensed under the <a href="https://opensource.org/licenses/MIT" target="_blank">MIT License</a>
+      </p>
+      <p style="margin-top: 8px; font-size: 12px; color: #64748b;">
+        Repository: <a href="https://github.com/MrSunilMishra/proxyshield.git" target="_blank">github.com/MrSunilMishra/proxyshield.git</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    // One-click code copy
+    function copyCode(btn) {
+      const code = btn.closest('.code-wrapper').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const originalText = btn.innerText;
+        btn.innerText = 'Copied! ✓';
+        btn.style.color = '#38bdf8';
+        setTimeout(() => {
+          btn.innerText = originalText;
+          btn.style.color = '';
+        }, 2000);
+      });
+    }
+
+    // OS Switcher
+    function switchOs(evt, tabId) {
+      document.querySelectorAll('.os-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.os-content').forEach(c => c.classList.remove('active'));
+      evt.currentTarget.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+  </script>
+</body>
+</html>

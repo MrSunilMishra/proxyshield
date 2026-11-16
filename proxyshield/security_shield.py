@@ -128,3 +128,4 @@ class StrictProxyShield:
                 f"Strict Proxy Mode: Proxy connection failed for '{proxy_url}'. "
                 f"Automatic direct fallback is disabled to protect direct IP. Error: {ex}"
             )
+
