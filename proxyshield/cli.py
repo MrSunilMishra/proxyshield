@@ -269,6 +269,21 @@ def handle_audit_cli(args: argparse.Namespace) -> int:
     return 0
 
 
+def handle_scan_command(args: argparse.Namespace) -> int:
+    """Executes Nmap-style domain reconnaissance and port scanning."""
+    from proxyshield.domain_scanner import scan_domain, render_domain_scan_results
+
+    target = getattr(args, "target", "")
+    if not target:
+        print("Error: Target domain or URL required. Example: pxs scan example.com", file=sys.stderr)
+        return 1
+
+    print(colorize_text(f"\n[ProxyShield] Initiating Nmap-style domain security scan on '{target}'...", "bright_cyan", bold=True))
+    data = scan_domain(target)
+    render_domain_scan_results(data)
+    return 0
+
+
 def print_main_menu() -> None:
     """Displays the terminal startup branding screen and quick actions menu."""
     banner = render_branding_banner()
@@ -341,10 +356,10 @@ def build_parser() -> argparse.ArgumentParser:
     )
     proxy_sub = proxy_parser.add_subparsers(dest="proxy_action")
 
-    # audit subcommand (aliases: a, scan)
+    # audit subcommand (aliases: a)
     audit_parser = subparsers.add_parser(
         "audit",
-        aliases=["a", "scan"],
+        aliases=["a"],
         help="Authorized target security testing strictly via verified proxies"
     )
     audit_parser.add_argument("--target", "-t", type=str, required=True, help="Target URL (authorized targets only)")
@@ -420,6 +435,14 @@ def build_parser() -> argparse.ArgumentParser:
     serve_parser.add_argument("--port", "-p", type=int, default=8080, help="Port to bind web server (default: 8080)")
     serve_parser.add_argument("--no-browser", action="store_true", help="Do not open browser automatically")
 
+    # scan subcommand (aliases: sc)
+    scan_parser = subparsers.add_parser(
+        "scan",
+        aliases=["sc"],
+        help="Nmap-style domain reconnaissance, DNS profiling, active port scan & SSL analysis"
+    )
+    scan_parser.add_argument("target", type=str, help="Target domain or URL (e.g. example.com, https://example.com)")
+
     return parser
 
 
@@ -427,7 +450,8 @@ def normalize_aliases(args: argparse.Namespace) -> argparse.Namespace:
     """Normalizes short-form command and action aliases."""
     cmd_map = {
         "p": "proxy", "proxies": "proxy",
-        "a": "audit", "scan": "audit",
+        "a": "audit",
+        "sc": "scan",
         "b": "banner",
         "c": "config", "cfg": "config",
         "i": "interactive", "shell": "interactive", "repl": "interactive",
@@ -474,6 +498,8 @@ def main(argv: List[str] = None) -> int:
         return 0
     elif args.command == "audit":
         return handle_audit_cli(args)
+    elif args.command == "scan":
+        return handle_scan_command(args)
     elif args.command == "proxy":
         return handle_proxy_cli(args)
     elif args.command == "banner":

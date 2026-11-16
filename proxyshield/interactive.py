@@ -68,6 +68,7 @@ def print_interactive_help() -> None:
         "|    check    | test live connectivity & latency across proxies      |",
         "|   random    | get a single fast working proxy URL                  |",
         "|    audit    | conduct strict proxy security audit on target URL    |",
+        "|    scan     | Nmap-style domain DNS, port scan & SSL analysis      |",
         "|     ip      | check operator real public IP & direct-IP guard      |",
         "|   banner    | render CFonts typography branding banner             |",
         "|   config    | show, validate, or edit branding configuration       |",
@@ -89,6 +90,28 @@ def print_interactive_help() -> None:
                 print(f"{border}{cmd_col}{border}{desc_col}{border}")
             else:
                 print(colorize_text(line, "bright_green"))
+
+
+def handle_interactive_scan(cmd_args: List[str]) -> None:
+    """Executes live Nmap-style domain reconnaissance and port scanning."""
+    from proxyshield.domain_scanner import scan_domain, render_domain_scan_results
+
+    target = cmd_args[0] if cmd_args else ""
+    if not target:
+        print(colorize_text("Enter target domain or URL to scan (e.g. example.com): ", "bright_cyan"), end="")
+        try:
+            target = input().strip()
+        except (KeyboardInterrupt, EOFError):
+            print()
+            return
+
+    if not target:
+        print(colorize_text("Scan aborted: No target domain provided.", "bright_yellow"))
+        return
+
+    print(colorize_text(f"\n[ProxyShield] Scanning target '{target}' (Nmap-Style Recon)...", "bright_cyan", bold=True))
+    data = scan_domain(target)
+    render_domain_scan_results(data)
 
 
 def handle_interactive_audit(cmd_args: List[str]) -> None:
@@ -432,8 +455,11 @@ def start_interactive_shell() -> int:
                 else:
                     print(colorize_text("No matching free proxy found.", "bright_red"))
 
-            elif cmd in ("audit", "a", "scan"):
+            elif cmd in ("audit", "a"):
                 handle_interactive_audit(cmd_args)
+
+            elif cmd in ("scan", "sc"):
+                handle_interactive_scan(cmd_args)
 
             elif cmd in ("ip", "myip", "guard"):
                 handle_interactive_ip()
