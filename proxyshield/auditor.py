@@ -19,7 +19,11 @@ from proxyshield.security_shield import StrictProxyShield, DirectIPExposureError
 from proxyshield.db import get_session, AuditSession, AuditResult, ProxyRecord
 
 
-def collect_target_intelligence(target_url: str, resp: Optional[httpx.Response] = None) -> Dict[str, Any]:
+def collect_target_intelligence(
+    target_url: str,
+    resp: Optional[httpx.Response] = None,
+    existing_intel: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
     """
     Collects web target metadata & security profiling:
     - Hostname & DNS-resolved IP
@@ -30,6 +34,36 @@ def collect_target_intelligence(target_url: str, resp: Optional[httpx.Response] 
     - CDN & Web Application Firewall (WAF) detection
     - Security headers audit (HSTS, CSP, X-Frame-Options, X-Content-Type-Options)
     """
+    if existing_intel and resp:
+        # Fast path: update headers from response without re-probing ports/SSL
+        intel = dict(existing_intel)
+        headers = {k.lower(): v for k, v in resp.headers.items()}
+        if "server" in headers:
+            intel["server"] = headers["server"]
+        if "x-powered-by" in headers:
+            intel["powered_by"] = headers["x-powered-by"]
+
+        srv_lower = intel.get("server", "").lower()
+        if "cf-ray" in headers or "cf-cache-status" in headers or "cloudflare" in srv_lower:
+            intel["cdn_waf"] = "Cloudflare WAF / CDN"
+        elif "x-amz-cf-id" in headers or "x-amz-cf-pop" in headers:
+            intel["cdn_waf"] = "Amazon CloudFront"
+        elif "x-akamai-transformed" in headers or "akamai" in srv_lower:
+            intel["cdn_waf"] = "Akamai Edge"
+        elif "x-sucuri-id" in headers or "sucuri" in srv_lower:
+            intel["cdn_waf"] = "Sucuri CloudProxy WAF"
+        elif "x-fastly-request-id" in headers:
+            intel["cdn_waf"] = "Fastly Edge Cloud"
+        elif "x-cdn" in headers and "incapsula" in headers.get("x-cdn", "").lower():
+            intel["cdn_waf"] = "Imperva Incapsula"
+
+        sec_headers = dict(intel.get("security_headers", {}))
+        sec_headers["strict_transport_security"] = headers.get("strict-transport-security", "Missing")
+        sec_headers["content_security_policy"] = "Configured" if "content-security-policy" in headers else "Missing"
+        sec_headers["x_frame_options"] = headers.get("x-frame-options", "Missing")
+        sec_headers["x_content_type_options"] = headers.get("x-content-type-options", "Missing")
+        intel["security_headers"] = sec_headers
+        return intel
     parsed = urlparse(target_url)
     hostname = parsed.hostname or ""
     scheme = parsed.scheme or "https"
@@ -44,22 +78,29 @@ def collect_target_intelligence(target_url: str, resp: Optional[httpx.Response] 
         except Exception as e:
             resolved_ip = f"Resolution error: {e}"
 
-    # 2. Web Service Ports Check (standard web service ports)
+    # 2. Web Service Ports Check (fast concurrent check on initial discovery only)
     open_ports = []
     test_ports = [80, 443, 8080, 8443]
-    if hostname and resolved_ip != "Unknown" and not resolved_ip.startswith("Resolution error"):
-        for p in test_ports:
+    if hostname and resolved_ip != "Unknown" and not resolved_ip.startswith("Resolution error") and resp is None:
+        def _test_p(p):
             try:
                 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                    s.settimeout(1.0)
+                    s.settimeout(0.4)
                     if s.connect_ex((hostname, p)) == 0:
-                        open_ports.append({
+                        return {
                             "port": p,
                             "service": "HTTPS" if p in (443, 8443) else "HTTP",
                             "state": "OPEN"
-                        })
+                        }
             except Exception:
                 pass
+            return None
+
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=4) as ex:
+            for res_p in ex.map(_test_p, test_ports):
+                if res_p:
+                    open_ports.append(res_p)
 
     # 3. SSL/TLS Certificate Analysis
     ssl_info = {
@@ -271,7 +312,7 @@ class NetworkAuditEngine:
                 elif 200 <= status_code < 400:
                     success += 1
                 # Collect target technology intelligence from live response
-                target_intel = collect_target_intelligence(target_url, resp)
+                target_intel = collect_target_intelligence(target_url, resp, existing_intel=target_intel)
             except Exception:
                 # Proxy dropped connection to target: discard and continue
                 discarded_dead += 1
