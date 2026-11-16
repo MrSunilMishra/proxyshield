@@ -301,6 +301,7 @@ You can run commands using **either** `proxyshield` or the quick alias **`pxs`**
 | `proxyshield proxy fetch` | `pxs p f` | Filter & fetch proxies (`--protocol`, `--country`) |
 | `proxyshield proxy check` | `pxs p c` | Concurrent live connectivity and latency check |
 | `proxyshield proxy random`| `pxs p r` | Get a single instant working proxy |
+| `proxyshield scan` | `pxs sc` | Nmap-style domain reconnaissance, DNS profiling & port scanner |
 | `proxyshield audit` | `pxs a` | Run strict-proxy security audit (`-t <URL>`) |
 | `proxyshield serve` | `pxs s` | Launch local web server dashboard (`proxyshield.test:8080`) |
 | `proxyshield banner` | `pxs b` | Generate CFonts typography banner (`-t`, `-f`, `-g`) |
@@ -313,7 +314,27 @@ You can run commands using **either** `proxyshield` or the quick alias **`pxs`**
 
 ## 🌐 How to Use with Target URLs (Step-by-Step)
 
-### 1. Auditing an Authorized Target URL
+### 1. Nmap-Style Live Domain Reconnaissance & Port Scan
+To instantly scan a domain for DNS records, open server ports, banners, SSL certificates, and security headers directly in your terminal:
+
+```bash
+# Instant Nmap-style domain scan:
+pxs scan example.com
+
+# Quick short-alias:
+pxs sc google.com
+```
+
+**What the Scanner Displays Instantly in the Terminal:**
+* **Target Host & DNS Intelligence:** Authoritative IPv4, IPv6, Reverse PTR, Name Servers (NS), Mail Servers (MX).
+* **Port Scan & Active Services:** Concurrently scans top 25 server ports (`21` FTP, `22` SSH, `25` SMTP, `53` DNS, `80` HTTP, `110` POP3, `143` IMAP, `443` HTTPS, `3306` MySQL, `5432` PostgreSQL, `8080`, `8443`, etc.) and reports state (`OPEN`), service names, and version banners.
+* **SSL/TLS Security Profiling:** Active TLS protocol (`TLSv1.3`), negotiated cipher, Certificate Authority/Issuer, Subject CN, SAN hostnames, and expiration countdown.
+* **Web Server & Technology Fingerprinting:** Server software (`Nginx`, `Apache`, `gws`, `Cloudflare`), backend stack (`X-Powered-By`), and WAF/CDN detection.
+* **HTTP Security Headers Audit:** Live pass/fail check for `Strict-Transport-Security` (HSTS), `Content-Security-Policy` (CSP), `X-Frame-Options`, `X-Content-Type-Options`, and `Referrer-Policy`.
+
+---
+
+### 2. Auditing an Authorized Target URL Strictly via Proxies
 To audit an authorized web server or API strictly through public proxies without exposing your real IP:
 
 ```bash
