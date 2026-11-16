@@ -205,7 +205,57 @@ proxyshield banner --list-fonts
 
 ---
 
-### 3. Configuration Management
+### 3. Free Proxy Pool & Network Diagnostics
+
+ProxyShield includes a multi-source free proxy aggregator that pulls, deduplicates, benchmarks, and filters live proxies from both **Geonode** and **ProxyScrape** APIs:
+* **ProxyScrape v4 API**: `https://api.proxyscrape.com/v4/free-proxy-list/get?request=display_proxies&proxy_format=protocolipport&format=json`
+* **Geonode Proxy API**: `https://proxylist.geonode.com/api/proxy-list?page=1&limit=500&sort_by=responseTime&sort_type=asc`
+
+#### Fetch & Filter Free Proxies
+```bash
+# Fetch fastest live proxies combining both Geonode and ProxyScrape (default)
+proxyshield proxy
+
+# Specify provider source (--source all | geonode | proxyscrape)
+proxyshield proxy fetch --source geonode --limit 20
+proxyshield proxy fetch --source proxyscrape --limit 20
+
+# Filter by protocol (http, socks4, socks5)
+proxyshield proxy fetch --protocol socks5 --limit 15
+proxyshield proxy fetch --protocol http --ssl
+
+# Filter by country code and anonymity level (elite, anonymous)
+proxyshield proxy fetch --country US --anonymity elite
+proxyshield proxy fetch --country DE --protocol socks5
+
+# Export live proxies to file (.txt or .json)
+proxyshield proxy fetch --limit 50 --output proxies.txt
+proxyshield proxy fetch --source geonode --format json --output proxies.json
+```
+
+#### Concurrent Live Proxy Diagnostics & Health Check
+Test live reachability, measure real round-trip latency, and diagnose dead proxies across concurrent threads:
+```bash
+# Concurrently diagnose 15 live proxies
+proxyshield proxy check --limit 15 --timeout 3
+
+# Save only verified working proxies to file
+proxyshield proxy check --limit 30 --alive-only --output working_proxies.txt
+```
+
+#### Instant Random Working Proxy
+Fetch a single formatted proxy endpoint for instant use in CLI tools, curl, or scripts:
+```bash
+proxyshield proxy random
+# Output: socks5://120.220.197.198:59999
+
+# Specific protocol or country
+proxyshield proxy random --protocol socks5 --country US
+```
+
+---
+
+### 4. Configuration Management
 
 ProxyShield stores its settings in an INI file at:
 ```bash

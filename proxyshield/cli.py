@@ -109,6 +109,75 @@ def handle_config_cli(args: argparse.Namespace) -> int:
     return 0
 
 
+from proxyshield.proxy_engine import (
+    fetch_free_proxies,
+    diagnose_proxies_concurrent,
+    render_proxy_table,
+    export_proxies_to_file,
+    get_random_free_proxy,
+)
+
+
+def handle_proxy_cli(args: argparse.Namespace) -> int:
+    """Handles `proxyshield proxy` subcommands."""
+    action = getattr(args, "proxy_action", "list")
+    source = getattr(args, "source", "all")
+
+    if action == "random":
+        p = get_random_free_proxy(
+            source=source,
+            protocol=args.protocol,
+            country=args.country,
+            anonymity=args.anonymity
+        )
+        if p:
+            print(p.get("proxy", ""))
+            return 0
+        else:
+            print("No matching free proxy found.", file=sys.stderr)
+            return 1
+
+    limit = args.limit or (10 if action == "check" else 20)
+    source_label = "ProxyScrape + Geonode" if source == "all" else source.capitalize()
+    print(colorize_text(f"\n[ProxyShield] Querying free proxy pool ({source_label})...", "bright_cyan"))
+
+    try:
+        proxies = fetch_free_proxies(
+            source=source,
+            protocol=args.protocol,
+            country=args.country,
+            anonymity=args.anonymity,
+            ssl_only=args.ssl,
+            max_timeout=args.max_timeout,
+            limit=limit
+        )
+    except Exception as e:
+        print(colorize_text(f"Error fetching proxies: {e}", "bright_red"))
+        return 1
+
+    if not proxies:
+        print(colorize_text("No proxies matched your filter criteria.", "bright_yellow"))
+        return 0
+
+    if action == "check":
+        print(colorize_text(f"Running concurrent connectivity diagnostics on {len(proxies)} proxies...", "bright_yellow"))
+        diagnosed = diagnose_proxies_concurrent(proxies, max_workers=args.workers or 15, timeout=args.timeout or 4)
+        render_proxy_table(diagnosed, title="ProxyShield Live Diagnostic Results", verified=True)
+
+        if args.output:
+            # Filter alive if saving
+            to_save = [p for p in diagnosed if p.get("verified_alive", False)] if args.alive_only else diagnosed
+            ok, msg = export_proxies_to_file(to_save, args.output, file_format=args.format or "txt")
+            print(colorize_text(msg, "bright_green" if ok else "bright_red"))
+        return 0
+    else:
+        render_proxy_table(proxies, title="ProxyShield Free Proxy Pool")
+        if args.output:
+            ok, msg = export_proxies_to_file(proxies, args.output, file_format=args.format or "txt")
+            print(colorize_text(msg, "bright_green" if ok else "bright_red"))
+        return 0
+
+
 def print_main_menu() -> None:
     """Displays the terminal startup branding screen and quick actions menu."""
     banner = render_branding_banner()
@@ -116,6 +185,9 @@ def print_main_menu() -> None:
 
     print("\n" + colorize_text("Available Commands:", "bright_yellow", bold=True))
     commands = [
+        ("proxyshield proxy", "Fetch and display live free proxies from ProxyScrape"),
+        ("proxyshield proxy check", "Run concurrent latency & connectivity diagnostics"),
+        ("proxyshield proxy random", "Get a single fast random proxy endpoint"),
         ("proxyshield banner", "Render branding banner with active configuration"),
         ("proxyshield banner --preview", "Display font style & color effect showcase"),
         ("proxyshield banner --list-fonts", "List all supported typography fonts"),
@@ -135,11 +207,48 @@ def build_parser() -> argparse.ArgumentParser:
     """Builds the main argument parser."""
     parser = argparse.ArgumentParser(
         prog="proxyshield",
-        description="ProxyShield - Advanced CFonts-Style Terminal Branding Engine"
+        description="ProxyShield - Advanced CFonts-Style Terminal Branding Engine & Free Proxy Diagnostics"
     )
     parser.add_argument("-v", "--version", action="version", version=f"ProxyShield {__version__} by Quarkova")
 
     subparsers = parser.add_subparsers(dest="command", help="Subcommand to execute")
+
+    # proxy subcommand
+    proxy_parser = subparsers.add_parser("proxy", help="Fetch, verify, and filter free proxies from ProxyScrape")
+    proxy_sub = proxy_parser.add_subparsers(dest="proxy_action")
+
+    # proxy fetch / list
+    def add_filter_args(p):
+        p.add_argument("--source", choices=["all", "geonode", "proxyscrape"], default="all", help="Proxy provider source")
+        p.add_argument("--protocol", choices=["http", "socks4", "socks5", "all"], default="all", help="Proxy protocol")
+        p.add_argument("--country", type=str, help="Country code filter (e.g. US, DE, IN, ES, CN)")
+        p.add_argument("--anonymity", choices=["elite", "anonymous", "transparent", "all"], default="all", help="Anonymity level")
+        p.add_argument("--ssl", action="store_true", help="SSL/HTTPS support only")
+        p.add_argument("--max-timeout", type=int, help="Maximum API latency in milliseconds")
+        p.add_argument("--limit", type=int, default=15, help="Number of proxies to fetch/display")
+        p.add_argument("--output", "-o", type=str, help="Output file path (e.g. proxies.txt or proxies.json)")
+        p.add_argument("--format", choices=["txt", "json"], default="txt", help="Output format")
+
+    fetch_p = proxy_sub.add_parser("fetch", help="Fetch and filter free proxies")
+    add_filter_args(fetch_p)
+
+    list_p = proxy_sub.add_parser("list", help="List free proxies in formatted table")
+    add_filter_args(list_p)
+
+    check_p = proxy_sub.add_parser("check", help="Test live proxy connectivity and measure roundtrip latency")
+    add_filter_args(check_p)
+    check_p.add_argument("--workers", type=int, default=15, help="Number of concurrent check threads")
+    check_p.add_argument("--timeout", type=int, default=4, help="Connection timeout in seconds")
+    check_p.add_argument("--alive-only", action="store_true", help="Only save verified working proxies to output")
+
+    rand_p = proxy_sub.add_parser("random", help="Output a single working free proxy")
+    rand_p.add_argument("--source", choices=["all", "geonode", "proxyscrape"], default="all")
+    rand_p.add_argument("--protocol", choices=["http", "socks4", "socks5", "all"], default="all")
+    rand_p.add_argument("--country", type=str)
+    rand_p.add_argument("--anonymity", choices=["elite", "anonymous", "transparent", "all"], default="all")
+
+    # Set default action on bare 'proxyshield proxy'
+    add_filter_args(proxy_parser)
 
     # banner subcommand
     add_banner_parser(subparsers)
@@ -166,7 +275,9 @@ def main(argv: List[str] = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
 
-    if args.command == "banner":
+    if args.command == "proxy":
+        return handle_proxy_cli(args)
+    elif args.command == "banner":
         return handle_banner_cli(args)
     elif args.command == "config":
         return handle_config_cli(args)
