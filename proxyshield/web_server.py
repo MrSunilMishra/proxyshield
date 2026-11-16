@@ -40,6 +40,33 @@ def find_available_port(start_port: int = 8080, max_attempts: int = 20) -> int:
     return start_port
 
 
+def check_local_dns_status() -> Dict[str, Any]:
+    """Checks whether proxyshield.test is configured in the OS hosts file."""
+    hosts_path = (
+        r"C:\Windows\System32\drivers\etc\hosts"
+        if sys.platform == "win32"
+        else "/etc/hosts"
+    )
+    configured = False
+    if os.path.exists(hosts_path):
+        try:
+            with open(hosts_path, "r", encoding="utf-8", errors="ignore") as f:
+                for line in f:
+                    stripped = line.strip()
+                    if not stripped.startswith("#") and "proxyshield.test" in stripped:
+                        configured = True
+                        break
+        except Exception:
+            pass
+
+    return {
+        "hosts_path": hosts_path,
+        "configured": configured,
+        "win_cmd": 'Add-Content -Path "C:\\Windows\\System32\\drivers\\etc\\hosts" -Value "127.0.0.1 proxyshield.test"',
+        "nix_cmd": 'echo "127.0.0.1 proxyshield.test" | sudo tee -a /etc/hosts'
+    }
+
+
 def generate_dashboard_html(reports: List[Dict[str, Any]], port: int) -> str:
     """Generates the modern local dashboard HTML page."""
     report_rows = ""

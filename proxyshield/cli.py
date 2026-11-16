@@ -199,21 +199,43 @@ def handle_audit_cli(args: argparse.Namespace) -> int:
     print(colorize_text(f"[Target] Auditing authorized target: {target_url}", "bright_white", bold=True))
 
     # Fetch live candidate proxies
-    print(colorize_text("\n[1/3] Gathering verified proxy pool...", "bright_cyan"))
-    proxies = fetch_free_proxies(source="all", limit=args.limit or 10)
-    if not proxies:
+    needed = args.limit or 10
+    print(colorize_text(f"\n[1/3] Gathering and pre-verifying live proxy pool (targeting {needed} active endpoints)...", "bright_cyan"))
+    raw_candidates = fetch_free_proxies(source="all", limit=max(30, needed * 3))
+    if not raw_candidates:
         print(colorize_text("Error: No proxies available for audit.", "bright_red"))
         return 1
 
-    print(colorize_text(f"Fetched {len(proxies)} candidate proxies. Beginning sequential low-rate testing...", "bright_yellow"))
+    print(colorize_text(f"Testing connectivity across {len(raw_candidates)} candidate endpoints concurrently...", "bright_yellow"))
+    diagnosed = diagnose_proxies_concurrent(raw_candidates, max_workers=15, timeout=3)
+    verified_alive = [p for p in diagnosed if p.get("verified_alive", False)]
+    if verified_alive:
+        verified_alive.sort(key=lambda x: x.get("latency_ms", 9999))
+        proxies = verified_alive[:needed]
+        print(colorize_text(f"✓ Selected top {len(proxies)} verified active proxies (latencies: {proxies[0].get('latency_ms', 0)}ms - {proxies[-1].get('latency_ms', 0)}ms)", "bright_green"))
+    else:
+        proxies = raw_candidates[:needed]
+        print(colorize_text("Note: High network latency detected; proceeding with candidate endpoints.", "bright_yellow"))
+
+    print(colorize_text(f"Beginning sequential low-rate testing across verified endpoints...", "bright_yellow"))
     auditor = NetworkAuditEngine(shield=shield)
     audit_data = auditor.audit_target(
         target_url=target_url,
         proxies=proxies,
         rate_limit_delay=args.delay,
-        max_requests=args.limit or 10,
+        max_requests=needed,
         timeout=args.timeout or 6
     )
+
+    # Display Target Technology Discovery
+    intel = audit_data.get("target_intel", {})
+    if intel:
+        print(colorize_text("\n[Target Technology Discovery]", "bright_cyan", bold=True))
+        print(f"  • Hostname & Resolved IP : {colorize_text(str(intel.get('hostname', '')), 'bright_white')} -> {colorize_text(str(intel.get('resolved_ip', '')), 'bright_green', bold=True)}")
+        print(f"  • Web Service Port       : {colorize_text(str(intel.get('port', '')), 'bright_yellow')} ({intel.get('scheme', '').upper()})")
+        print(f"  • Server Software        : {colorize_text(str(intel.get('server', '')), 'bright_white')}")
+        print(f"  • Backend Tech           : {colorize_text(str(intel.get('powered_by', '')), 'bright_white')}")
+        print(f"  • CDN / WAF Protection   : {colorize_text(str(intel.get('cdn_waf', '')), 'bright_cyan')}")
 
     print(colorize_text("\n[2/3] Diagnostic Request Breakdown:", "bright_yellow", bold=True))
     for r in audit_data["results"]:

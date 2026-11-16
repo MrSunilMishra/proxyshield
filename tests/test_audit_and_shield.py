@@ -132,3 +132,15 @@ def test_sqlite_db_init_and_records():
         # Explicitly close session and dispose engine so Windows releases file lock
         session.close()
         engine.dispose()
+
+
+def test_collect_target_intelligence():
+    from proxyshield.auditor import collect_target_intelligence
+    intel = collect_target_intelligence("https://example.com")
+    assert intel["hostname"] == "example.com"
+    assert intel["port"] == 443
+    assert intel["scheme"] == "https"
+    assert "resolved_ip" in intel
+    assert "server" in intel
+    assert "cdn_waf" in intel
+    assert "security_headers" in intel

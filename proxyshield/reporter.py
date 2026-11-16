@@ -74,6 +74,32 @@ HTML_REPORT_TEMPLATE = """<!DOCTYPE html>
       </div>
     </div>
 
+    {% if target_intel %}
+    <h2>Target Server & Technology Intelligence</h2>
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+      <div class="card">
+        <div class="card-title">Resolved Target IP</div>
+        <div class="card-val" style="font-size: 16px; color: #38bdf8;">{{ target_intel.resolved_ip }}</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Web Service Port</div>
+        <div class="card-val" style="font-size: 16px; color: #4ade80;">{{ target_intel.port }} ({{ target_intel.scheme|upper }})</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Server Software</div>
+        <div class="card-val" style="font-size: 16px; color: #facc15;">{{ target_intel.server }}</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Backend Technology</div>
+        <div class="card-val" style="font-size: 16px;">{{ target_intel.powered_by }}</div>
+      </div>
+      <div class="card">
+        <div class="card-title">CDN / WAF Protection</div>
+        <div class="card-val" style="font-size: 16px; color: #38bdf8;">{{ target_intel.cdn_waf }}</div>
+      </div>
+    </div>
+    {% endif %}
+
     <h2>1. Diagnostic Request Breakdown</h2>
     <table>
       <thead>
@@ -164,6 +190,7 @@ def generate_html_report(audit_data: Dict[str, Any], filepath: str) -> None:
         timestamp=datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
         legal_notice=LEGAL_PRIVACY_NOTICE,
         target_url=audit_data.get("target_url", "N/A"),
+        target_intel=audit_data.get("target_intel"),
         total_requests=audit_data.get("total_requests", 0),
         direct_exposure_prevented=audit_data.get("direct_exposure_prevented", 0),
         results=audit_data.get("results", [])

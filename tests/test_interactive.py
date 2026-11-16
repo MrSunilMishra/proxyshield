@@ -38,6 +38,7 @@ def test_interactive_help_table(capsys):
     assert "banner" in captured
     assert "config" in captured
     assert "report" in captured
+    assert "hosts" in captured
     assert "exit" in captured
 
 

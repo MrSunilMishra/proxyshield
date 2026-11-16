@@ -10,11 +10,80 @@ Website: https://quarkova.com
 import time
 import socket
 import datetime
+from urllib.parse import urlparse
 from typing import List, Dict, Any, Optional, Tuple
 import httpx
 
 from proxyshield.security_shield import StrictProxyShield, DirectIPExposureError, ProxyConnectivityError
 from proxyshield.db import get_session, AuditSession, AuditResult, ProxyRecord
+
+
+def collect_target_intelligence(target_url: str, resp: Optional[httpx.Response] = None) -> Dict[str, Any]:
+    """
+    Collects web target metadata: DNS-resolved IP, service port,
+    server header, technologies (X-Powered-By), CDN/WAF detection,
+    and security headers.
+    """
+    parsed = urlparse(target_url)
+    hostname = parsed.hostname or ""
+    port = parsed.port or (443 if parsed.scheme == "https" else 80)
+
+    # DNS Resolution
+    resolved_ip = "Unknown"
+    if hostname:
+        try:
+            resolved_ip = socket.gethostbyname(hostname)
+        except Exception as e:
+            resolved_ip = f"Resolution error: {e}"
+
+    intel = {
+        "hostname": hostname,
+        "resolved_ip": resolved_ip,
+        "port": port,
+        "scheme": parsed.scheme or "https",
+        "server": "Undisclosed / Hidden",
+        "powered_by": "None disclosed",
+        "cdn_waf": "No CDN/WAF header detected",
+        "security_headers": {
+            "strict_transport_security": "Missing",
+            "content_security_policy": "Missing",
+            "x_frame_options": "Missing",
+            "x_content_type_options": "Missing"
+        }
+    }
+
+    if resp:
+        headers = {k.lower(): v for k, v in resp.headers.items()}
+        if "server" in headers:
+            intel["server"] = headers["server"]
+        if "x-powered-by" in headers:
+            intel["powered_by"] = headers["x-powered-by"]
+
+        # CDN / WAF Detection
+        srv_lower = intel["server"].lower()
+        if "cf-ray" in headers or "cf-cache-status" in headers or "cloudflare" in srv_lower:
+            intel["cdn_waf"] = "Cloudflare"
+        elif "x-amz-cf-id" in headers or "x-amz-cf-pop" in headers:
+            intel["cdn_waf"] = "Amazon CloudFront"
+        elif "x-akamai-transformed" in headers or "akamai" in srv_lower:
+            intel["cdn_waf"] = "Akamai"
+        elif "x-fastly-request-id" in headers:
+            intel["cdn_waf"] = "Fastly"
+        elif "x-sucuri-id" in headers:
+            intel["cdn_waf"] = "Sucuri WAF"
+        elif "x-iinfo" in headers:
+            intel["cdn_waf"] = "Imperva Incapsula"
+
+        # Security Headers
+        sec_h = {
+            "strict_transport_security": headers.get("strict-transport-security", "Missing"),
+            "content_security_policy": "Present" if "content-security-policy" in headers else "Missing",
+            "x_frame_options": headers.get("x-frame-options", "Missing"),
+            "x_content_type_options": headers.get("x-content-type-options", "Missing")
+        }
+        intel["security_headers"] = sec_h
+
+    return intel
 
 
 class NetworkAuditEngine:
@@ -89,6 +158,8 @@ class NetworkAuditEngine:
         db_session.add(audit_rec)
         db_session.commit()
 
+        target_intel = collect_target_intelligence(target_url)
+
         results: List[Dict[str, Any]] = []
         total = 0
         success = 0
@@ -144,6 +215,8 @@ class NetworkAuditEngine:
                     blocked += 1
                 elif 200 <= status_code < 400:
                     success += 1
+                # Collect target technology intelligence from live response
+                target_intel = collect_target_intelligence(target_url, resp)
             except Exception as e:
                 exception_obj = e
 
@@ -188,6 +261,7 @@ class NetworkAuditEngine:
         return {
             "session_id": audit_rec.id,
             "target_url": target_url,
+            "target_intel": target_intel,
             "operator_direct_ip": self.shield.operator_direct_ip,
             "total_requests": total,
             "successful_requests": success,
