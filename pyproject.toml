@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "proxyshield"
+version = "1.0.0"
+description = "Advanced CFonts-Style Terminal Typography & Branding Engine"
+authors = [{ name = "Quarkova", email = "contact@quarkova.com" }]
+license = { text = "MIT" }
+readme = "docs/BRANDING.md"
+requires-python = ">=3.8"
+dependencies = [
+    "pyfiglet>=1.0.0",
+    "rich>=13.0.0",
+    "colorama>=0.4.6",
+]
+
+[project.urls]
+Homepage = "https://quarkova.com"
+
+[project.scripts]
+proxyshield = "proxyshield.cli:main"
+
