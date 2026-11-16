@@ -358,19 +358,37 @@ The local web dashboard automatically discovers all `.html`, `.json`, and `.csv`
 
 ---
 
+### 🛡️ Advanced Target Security Intelligence & Reconnaissance
+
+ProxyShield includes an advanced, non-intrusive target security reconnaissance engine (combining web-layer port checks, TLS inspection, and HTTP fingerprinting through verified proxies):
+
+| Capability | What ProxyShield Inspects & Reports |
+| :--- | :--- |
+| **Target DNS Resolution** | Resolves target domain to authoritative public IP address |
+| **Web Service Port Check** | Verifies availability of web services (`80` HTTP, `443` HTTPS, `8080` Alt-HTTP, `8443` Alt-HTTPS) |
+| **SSL/TLS Security Profiling** | Active protocol version (`TLSv1.3`, `TLSv1.2`), negotiated cipher suite, certificate authority/issuer, and expiration date |
+| **Server & Software Detection** | Detects origin server software (`Server` header: Nginx, Apache, Caddy, Cloudflare, Envoy, IIS, etc.) |
+| **Backend Frameworks** | Detects application language and stack via `X-Powered-By` (PHP, Express, ASP.NET, Next.js, etc.) |
+| **CDN & WAF Protection** | Identifies protective reverse proxies & Web Application Firewalls (Cloudflare, AWS CloudFront, Akamai, Sucuri, Fastly, Incapsula) |
+| **Security Headers Audit** | Checks presence/absence of `Strict-Transport-Security` (HSTS), `Content-Security-Policy` (CSP), `X-Frame-Options`, `X-Content-Type-Options` |
+| **Strict Identity Shield** | Verifies each proxy's exit IP before contacting target; drops dead proxies automatically with zero `PROXY_FAIL` clutter; ensures operator's real IP is never revealed |
+
+---
+
 ### 🛡️ Understanding the Difference: ProxyShield vs Nmap
 
 | Feature | Nmap | ProxyShield (`pxs`) |
 | :--- | :--- | :--- |
-| **Primary Purpose** | Low-level raw network & port scanner (TCP/UDP SYN/FIN sweeps) | Web application security transparency & public proxy intelligence |
-| **Network Layer** | Layer 3 & Layer 4 (IP/TCP/UDP packet crafting) | Layer 7 (HTTP/HTTPS/SOCKS application auditing) |
-| **Identity Protection** | Direct-IP by default (sends packets directly from your machine) | **Strict Direct-IP Shield**: Operator IP is never exposed to the target |
-| **Routing Mechanism** | Direct raw sockets | Geographically distributed third-party public proxies (Geonode, ProxyScrape) |
+| **Primary Purpose** | Low-level raw network & port scanner (TCP/UDP SYN/FIN sweeps) | Web application security transparency, target profiling & proxy intelligence |
+| **Network Layer** | Layer 3 & Layer 4 (IP/TCP/UDP packet crafting) | Layer 7 (HTTP/HTTPS/SOCKS application auditing) + Web service ports |
+| **Identity Protection** | Direct-IP by default (sends packets directly from your machine) | **Strict Direct-IP Shield**: Operator IP is verified & never exposed |
+| **Proxy Routing** | Requires external proxychains wrapping | Native multi-source proxy aggregation with verified exit IPs |
+| **Proxy Quality Control** | N/A (relies on user-provided socks) | **Auto-Discards dead proxies**; only working proxies hit target and record results |
 | **Target Security Classification** | Open/Closed/Filtered ports | `SUCCESS`, `HTTP_403`, `HTTP_429`, `5xx`, `FIREWALL_BLOCK` with response telemetry |
-| **Authorization & Use Case** | Infrastructure discovery (can trigger IDS/IPS alerts) | Controlled, authorized defensive web service auditing & proxy health verification |
+| **Authorization & Safety** | Infrastructure discovery (can trigger IDS/IPS alerts) | Controlled, authorized defensive web service auditing & proxy health verification |
 
 > [!NOTE]
-> ProxyShield is intentionally **NOT** an aggressive port scanner or DDoS tool. It is an authorized defensive auditing system designed to assess web server reachability, WAF/firewall responses, and proxy transparency without risking accidental exposure of your real IP.
+> ProxyShield is intentionally designed as an authorized defensive web auditing system. It checks web application endpoints, certificates, and firewall responses through verified proxies without risking accidental exposure of your real IP.
 
 ---
 
