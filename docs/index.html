@@ -768,12 +768,20 @@ curl -x $(pxs p r) https://api.ipify.org</code></pre>
         </div>
 
         <div class="notice-box" style="border-left-color: var(--primary); margin-top:20px;">
-          <h3>📊 How to Open and View Generated HTML Reports</h3>
+          <h3>📊 Automated Python Web Server & Dashboard (`pxs serve` / `report`)</h3>
           <p>
-            After running an audit, open the generated HTML dashboard in your default browser:<br>
-            • <strong>Windows:</strong> <code>start audit_report.html</code><br>
-            • <strong>macOS:</strong> <code>open audit_report.html</code><br>
-            • <strong>Linux:</strong> <code>xdg-open audit_report.html</code>
+            Avoid browser local file restrictions! ProxyShield includes an automated built-in web server and central dashboard:<br>
+            • Run <code>pxs serve</code> in terminal, or type <code>report</code> in the interactive prompt.<br>
+            • Automatically starts at <code>http://127.0.0.1:8080</code> and opens in your default browser.<br>
+            • <strong>Custom Local Domain:</strong> Access via <code>http://proxyshield.test:8080</code> by adding <code>127.0.0.1 proxyshield.test</code> to your system <code>hosts</code> file!
+          </p>
+        </div>
+
+        <div class="notice-box" style="border-left-color: var(--accent); margin-top:20px;">
+          <h3>🛡️ Understanding the Difference: ProxyShield vs Nmap</h3>
+          <p>
+            <strong>Nmap:</strong> Performs raw TCP/UDP port-scanning and low-level packet sweeps directly from your machine. Without explicit authorization, raw port scanning is considered hostile reconnaissance by security operations teams.<br><br>
+            <strong>ProxyShield (`pxs`):</strong> An authorized application-layer web auditing and public proxy intelligence platform. Tests authorized target web services strictly through third-party public proxies with guaranteed <strong>zero direct-IP exposure</strong>, classifying real application firewall behavior (<code>HTTP 200</code>, <code>403</code>, <code>429</code>, <code>5xx</code>, <code>FIREWALL_BLOCK</code>).
           </p>
         </div>
       </section>

@@ -239,27 +239,28 @@ def handle_interactive_check(cmd_args: List[str]) -> None:
     render_proxy_table(diagnosed, title="ProxyShield Live Diagnostic Results", verified=True)
 
 
-def handle_interactive_reports() -> None:
-    """Lists generated reports and offers to open the latest in browser."""
-    html_reports = sorted(glob.glob("*.html"), key=os.path.getmtime, reverse=True)
-    if not html_reports:
-        print(colorize_text("No HTML audit reports found in the current directory.", "bright_yellow"))
-        print(colorize_text("Run 'audit <target-url>' to conduct an audit and generate a report.", "white"))
-        return
+def handle_interactive_reports(cmd_args: List[str] = None) -> None:
+    """Launches local web server dashboard and opens reports in browser."""
+    from proxyshield.web_server import start_report_server, _ACTIVE_PORT
+    port = 8080
+    if cmd_args and cmd_args[0].isdigit():
+        port = int(cmd_args[0])
 
-    print(colorize_text("\nFound Audit Reports:", "bright_cyan", bold=True))
-    for r in html_reports[:5]:
-        print(f"  • {colorize_text(r, 'bright_green')} ({os.path.abspath(r)})")
+    print(colorize_text("\n[ProxyShield Report & Diagnostics Center]", "bright_cyan", bold=True))
+    if _ACTIVE_PORT:
+        local_url = f"http://127.0.0.1:{_ACTIVE_PORT}"
+        domain_url = f"http://proxyshield.test:{_ACTIVE_PORT}"
+        print(colorize_text(f"Dashboard web server already running at: {local_url}", "bright_green"))
+        webbrowser.open(local_url)
+    else:
+        local_url, actual_port = start_report_server(port=port, open_browser=True, background=True)
+        domain_url = f"http://proxyshield.test:{actual_port}"
+        print(colorize_text(f"✓ Started background web server: {local_url}", "bright_green", bold=True))
+        print(colorize_text(f"  • Custom Domain: {domain_url} (if mapped in hosts file)", "bright_cyan"))
+        print(colorize_text(f"  • Tip: Add '127.0.0.1 proxyshield.test' to your system hosts file.", "gray"))
+        webbrowser.open(local_url)
 
-    latest = html_reports[0]
-    print(colorize_text(f"\nOpen latest report '{latest}' in browser? [Y/n]: ", "bright_yellow"), end="")
-    try:
-        ans = input().strip().lower()
-        if ans in ("", "y", "yes"):
-            webbrowser.open("file://" + os.path.abspath(latest))
-            print(colorize_text(f"Opened {latest} in default browser.", "bright_green"))
-    except (KeyboardInterrupt, EOFError):
-        print()
+    print(colorize_text("Opened Report Dashboard in your default browser.\n", "white"))
 
 
 def handle_interactive_ip() -> None:
@@ -403,8 +404,8 @@ def start_interactive_shell() -> int:
                     ok, msg = check_permissions(path)
                     print(colorize_text(f"Permissions: {msg}", "bright_green" if ok else "bright_red"))
 
-            elif cmd in ("report", "reports"):
-                handle_interactive_reports()
+            elif cmd in ("report", "reports", "serve", "dashboard", "web"):
+                handle_interactive_reports(cmd_args)
 
             elif cmd in ("version", "-v", "--version", "v"):
                 print(f"\n{colorize_text('ProxyShield', 'bright_green', bold=True)} v{__version__}")

@@ -375,6 +375,15 @@ def build_parser() -> argparse.ArgumentParser:
     perm_p = config_sub.add_parser("permissions", aliases=["p", "perm"], help="Verify and secure configuration file permissions")
     perm_p.add_argument("--fix", action="store_true", help="Automatically enforce 0600 permissions")
 
+    # serve / web dashboard subcommand (aliases: s, web, dashboard)
+    serve_parser = subparsers.add_parser(
+        "serve",
+        aliases=["s", "web", "dashboard"],
+        help="Start local web server dashboard for viewing reports (e.g. at proxyshield.test or localhost)"
+    )
+    serve_parser.add_argument("--port", "-p", type=int, default=8080, help="Port to bind web server (default: 8080)")
+    serve_parser.add_argument("--no-browser", action="store_true", help="Do not open browser automatically")
+
     return parser
 
 
@@ -386,6 +395,7 @@ def normalize_aliases(args: argparse.Namespace) -> argparse.Namespace:
         "b": "banner",
         "c": "config", "cfg": "config",
         "i": "interactive", "shell": "interactive", "repl": "interactive",
+        "s": "serve", "web": "serve", "dashboard": "serve",
     }
     action_map = {
         "f": "fetch", "l": "list", "ls": "list",
@@ -417,6 +427,14 @@ def main(argv: List[str] = None) -> int:
         return start_interactive_shell()
     elif getattr(args, "menu", False):
         print_main_menu()
+        return 0
+    elif args.command == "serve":
+        from proxyshield.web_server import start_report_server
+        start_report_server(
+            port=getattr(args, "port", 8080),
+            open_browser=not getattr(args, "no_browser", False),
+            background=False
+        )
         return 0
     elif args.command == "audit":
         return handle_audit_cli(args)

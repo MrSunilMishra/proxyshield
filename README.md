@@ -301,6 +301,7 @@ You can run commands using **either** `proxyshield` or the quick alias **`pxs`**
 | `proxyshield proxy check` | `pxs p c` | Concurrent live connectivity and latency check |
 | `proxyshield proxy random`| `pxs p r` | Get a single instant working proxy |
 | `proxyshield audit` | `pxs a` | Run strict-proxy security audit (`-t <URL>`) |
+| `proxyshield serve` | `pxs s` | Launch local web server dashboard (`proxyshield.test:8080`) |
 | `proxyshield banner` | `pxs b` | Generate CFonts typography banner (`-t`, `-f`, `-g`) |
 | `proxyshield config` | `pxs c` | Configuration management (`show`, `validate`, `edit`) |
 
@@ -334,22 +335,42 @@ pxs a -t "https://example.com" -n 15 -d 1.5 -r my_security_audit
 
 ---
 
-### 2. How to Open and View Generated HTML Reports
+### 2. Viewing Reports via Automated Local Web Server & Dashboard
 
-* **On Windows (PowerShell or CMD):**
-  ```powershell
-  start my_security_audit.html
-  ```
-* **On macOS:**
-  ```bash
-  open my_security_audit.html
-  ```
-* **On Linux:**
-  ```bash
-  xdg-open my_security_audit.html
-  ```
+To avoid browser file access restrictions (`file:///` blocks), ProxyShield includes a built-in automated Python web server and central dashboard:
 
-The generated HTML report includes interactive donut charts, risk score distributions, proxy latency comparisons, and detailed response logs.
+```bash
+# Start local web server and automatically open dashboard in browser:
+pxs serve
+# (or: proxyshield serve, or in interactive shell type: report)
+
+# Custom port (e.g. 8888):
+pxs serve --port 8888
+```
+
+#### 🌐 Accessing via Local Custom Domain (`http://proxyshield.test:8080`)
+You can view all generated reports at `http://proxyshield.test:8080`! Simply add one line to your system hosts file:
+
+* **Windows:** Add `127.0.0.1 proxyshield.test` to `C:\Windows\System32\drivers\etc\hosts`
+* **Linux / macOS / Termux:** Add `127.0.0.1 proxyshield.test` to `/etc/hosts`
+
+The local web dashboard automatically discovers all `.html`, `.json`, and `.csv` reports in your directory, presents interactive donut charts, latency benchmarks, and lets you open any report with a single click.
+
+---
+
+### 🛡️ Understanding the Difference: ProxyShield vs Nmap
+
+| Feature | Nmap | ProxyShield (`pxs`) |
+| :--- | :--- | :--- |
+| **Primary Purpose** | Low-level raw network & port scanner (TCP/UDP SYN/FIN sweeps) | Web application security transparency & public proxy intelligence |
+| **Network Layer** | Layer 3 & Layer 4 (IP/TCP/UDP packet crafting) | Layer 7 (HTTP/HTTPS/SOCKS application auditing) |
+| **Identity Protection** | Direct-IP by default (sends packets directly from your machine) | **Strict Direct-IP Shield**: Operator IP is never exposed to the target |
+| **Routing Mechanism** | Direct raw sockets | Geographically distributed third-party public proxies (Geonode, ProxyScrape) |
+| **Target Security Classification** | Open/Closed/Filtered ports | `SUCCESS`, `HTTP_403`, `HTTP_429`, `5xx`, `FIREWALL_BLOCK` with response telemetry |
+| **Authorization & Use Case** | Infrastructure discovery (can trigger IDS/IPS alerts) | Controlled, authorized defensive web service auditing & proxy health verification |
+
+> [!NOTE]
+> ProxyShield is intentionally **NOT** an aggressive port scanner or DDoS tool. It is an authorized defensive auditing system designed to assess web server reachability, WAF/firewall responses, and proxy transparency without risking accidental exposure of your real IP.
 
 ---
 
@@ -619,6 +640,7 @@ proxyshield/
 │   ├── color_engine.py       # 24-bit TrueColor, multi-stop gradients & rainbow
 │   ├── config_manager.py     # Owner-protected config manager (0600/0700)
 │   ├── branding.py           # Branding badges & shell integration bridge
+│   ├── web_server.py         # Local report web server & proxyshield.test dashboard
 │   └── banner.py             # Standalone banner & showcase preview
 ├── scripts/
 │   ├── pxs                   # Shell CLI short alias wrapper
@@ -626,14 +648,15 @@ proxyshield/
 ├── docs/
 │   ├── BRANDING.md           # Deep-dive architecture & typography guide
 │   └── index.html            # Documentation site mirror for GitHub Pages
-├── tests/                    # Automated pytest test suite (39 tests)
+├── tests/                    # Automated pytest test suite (42 tests)
 │   ├── test_audit_and_shield.py
 │   ├── test_cli_aliases.py
 │   ├── test_color_engine.py
 │   ├── test_config.py
 │   ├── test_font_and_banner.py
 │   ├── test_interactive.py
-│   └── test_proxy_engine.py
+│   ├── test_proxy_engine.py
+│   └── test_web_server.py
 ├── run.sh                    # 1-click bootstrap script for Linux/macOS/Termux
 ├── run.bat                   # 1-click bootstrap script for Windows
 ├── index.html                # Interactive GitHub Pages documentation website
