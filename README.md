@@ -24,6 +24,17 @@
 
 ---
 
+## ⚠️ Important Disclaimer & Educational Notice
+
+> [!CAUTION]
+> **FOR EDUCATIONAL, RESEARCH, AND AUTHORIZED DIAGNOSTIC PURPOSES ONLY.**
+>
+> * **DO NOT USE FOR DDOS OR DOS ATTACKS**: ProxyShield is designed strictly as a terminal branding, typography, and network diagnostic framework for learning and defensive testing. It must **NEVER** be used to launch Distributed Denial of Service (DDoS) attacks, flood network infrastructure, disrupt web services, or conduct unauthorized stress testing.
+> * **LEGAL & ETHICAL USE**: You may only test and diagnose systems and networks that you own or have received **explicit, written authorization** to test. Unauthorized attacks against computers, networks, or services are illegal under federal and international laws (such as the US Computer Fraud and Abuse Act - CFAA).
+> * **NO LIABILITY**: The author (**Quarkova**), developers, and contributors assume **no liability** and are not responsible for any misuse, damage, service downtime, or legal repercussions resulting from the use of this software. By using this tool, you agree to take full personal responsibility for complying with all applicable laws.
+
+---
+
 ## 🌟 Key Features
 
 * **CFonts-Inspired Terminal Typography**: Support for 11 core font styles (`standard`, `block`, `3d`, `huge`, `shadow`, `shade`, `console`, `slant`, `small`, `banner`, `digital`) and 570+ FIGlet backend fonts.
@@ -289,3 +300,4 @@ proxyshield/
 * **Repository**: [https://github.com/MrSunilMishra/proxyshield.git](https://github.com/MrSunilMishra/proxyshield.git)
 
 *Learn. Test. Secure.*
+
