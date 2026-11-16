@@ -49,7 +49,42 @@
 
 ---
 
-## 📥 How to Download ProxyShield
+## ⚡ Instant 1-Click Automated Setup (Zero Effort)
+
+Simply clone and run the automated bootstrap script. It will **automatically install `uv`**, create the isolated `.venv` environment, install all dependencies, and launch ProxyShield:
+
+### 🐧 On Linux, Android (Termux) & macOS:
+```bash
+# 1. Clone repository
+git clone https://github.com/MrSunilMishra/proxyshield.git
+cd proxyshield
+
+# 2. Run the automated script (installs uv, sets up venv, and launches)
+chmod +x run.sh
+./run.sh
+```
+
+### 🪟 On Windows (PowerShell or CMD):
+```powershell
+# 1. Clone repository
+git clone https://github.com/MrSunilMishra/proxyshield.git
+cd proxyshield
+
+# 2. Run the automated script (installs uv, sets up venv, and launches)
+.\run.bat
+```
+
+> [!TIP]
+> You can pass any options directly to the script:
+> ```bash
+> ./run.sh -h                                # Help overview
+> ./run.sh p r                               # Get instant free proxy
+> ./run.sh a -t "https://example.com"        # Run strict security audit
+> ```
+
+---
+
+## 📥 Manual Download & Installation Procedure
 
 Choose one of the two download options below:
 

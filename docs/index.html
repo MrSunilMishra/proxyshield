@@ -557,96 +557,59 @@ cd proxyshield</code></pre>
       <section id="install">
         <div class="section-header">
           <span class="step-number">2</span>
-          <h2>How to Install (Isolated with `uv`)</h2>
+          <h2>⚡ 1-Click Automated Setup (Auto-Installs uv & Launches)</h2>
         </div>
         <p class="lead">
-          We recommend <a href="https://github.com/astral-sh/uv" style="color:var(--primary);" target="_blank">uv</a> to install dependencies
-          inside a local <code>.venv</code> without modifying your global system Python.
+          Clone the repository and run the automated bootstrap script. It detects your environment,
+          <strong>automatically installs <code>uv</code> if missing</strong>, builds the isolated <code>.venv</code>, installs dependencies, and launches ProxyShield:
         </p>
 
         <!-- OS Selector -->
         <div class="os-tabs">
-          <button class="os-tab active" onclick="switchOs(event, 'tab-linux')">Linux / macOS</button>
-          <button class="os-tab" onclick="switchOs(event, 'tab-termux')">Android (Termux)</button>
-          <button class="os-tab" onclick="switchOs(event, 'tab-win')">Windows PowerShell</button>
-          <button class="os-tab" onclick="switchOs(event, 'tab-cmd')">Windows CMD</button>
+          <button class="os-tab active" onclick="switchOs(event, 'tab-linux')">🐧 Linux / macOS / Termux</button>
+          <button class="os-tab" onclick="switchOs(event, 'tab-win')">🪟 Windows (CMD / PowerShell)</button>
         </div>
 
-        <!-- Linux / macOS -->
+        <!-- Linux / macOS / Termux -->
         <div id="tab-linux" class="os-content active">
           <div class="code-wrapper">
             <div class="code-header">
               <span>bash (Terminal)</span>
               <button class="copy-btn" onclick="copyCode(this)">Copy</button>
             </div>
-            <pre><code><span class="comment"># 1. Create isolated environment with uv</span>
-uv venv .venv
-source .venv/bin/activate
+            <pre><code><span class="comment"># 1. Clone repository</span>
+git clone https://github.com/MrSunilMishra/proxyshield.git
+cd proxyshield
 
-<span class="comment"># 2. Install ProxyShield & dependencies</span>
-uv pip install -e .[dev]
+<span class="comment"># 2. Run automated script (automatically installs uv & runs ProxyShield)</span>
+chmod +x run.sh
+./run.sh
 
-<span class="comment"># 3. Verify installation</span>
-pxs -v</code></pre>
+<span class="comment"># You can also pass any options directly:</span>
+./run.sh -h
+./run.sh p r
+./run.sh a -t "https://example.com"</code></pre>
           </div>
         </div>
 
-        <!-- Android Termux -->
-        <div id="tab-termux" class="os-content">
-          <div class="code-wrapper">
-            <div class="code-header">
-              <span>Termux (Android)</span>
-              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-            </div>
-            <pre><code><span class="comment"># 1. Update Termux & install Python</span>
-pkg update && pkg install python git -y
-
-<span class="comment"># 2. Setup virtual environment</span>
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-pip install -e .
-
-<span class="comment"># 3. Run ProxyShield</span>
-pxs</code></pre>
-          </div>
-        </div>
-
-        <!-- Windows PowerShell -->
+        <!-- Windows PowerShell / CMD -->
         <div id="tab-win" class="os-content">
           <div class="code-wrapper">
             <div class="code-header">
-              <span>PowerShell (Windows)</span>
+              <span>PowerShell or Command Prompt</span>
               <button class="copy-btn" onclick="copyCode(this)">Copy</button>
             </div>
-            <pre><code><span class="comment"># 1. Setup isolated venv with uv</span>
-uv venv .venv
-.\.venv\Scripts\Activate.ps1
+            <pre><code><span class="comment">REM 1. Clone repository</span>
+git clone https://github.com/MrSunilMishra/proxyshield.git
+cd proxyshield
 
-<span class="comment"># 2. Install packages</span>
-uv pip install -e .[dev]
+<span class="comment">REM 2. Run automated script (automatically installs uv & runs ProxyShield)</span>
+.\run.bat
 
-<span class="comment"># 3. Run CLI</span>
-pxs</code></pre>
-          </div>
-        </div>
-
-        <!-- Windows CMD -->
-        <div id="tab-cmd" class="os-content">
-          <div class="code-wrapper">
-            <div class="code-header">
-              <span>Command Prompt (CMD)</span>
-              <button class="copy-btn" onclick="copyCode(this)">Copy</button>
-            </div>
-            <pre><code><span class="comment">REM 1. Setup isolated venv with uv</span>
-uv venv .venv
-call .venv\Scripts\activate.bat
-
-<span class="comment">REM 2. Install packages</span>
-uv pip install -e .[dev]
-
-<span class="comment">REM 3. Run CLI</span>
-pxs</code></pre>
+<span class="comment">REM You can pass options directly:</span>
+.\run.bat -h
+.\run.bat p r
+.\run.bat a -t "https://example.com"</code></pre>
           </div>
         </div>
       </section>
