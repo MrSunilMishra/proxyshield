@@ -56,3 +56,16 @@ def test_start_report_server_background():
         data = json.loads(resp_api.read().decode("utf-8"))
         assert data["tool"] == "ProxyShield"
         assert data["author"] == "Quarkova"
+
+
+def test_safe_open_browser_and_dns_check():
+    from proxyshield.web_server import safe_open_browser, check_local_dns_status
+    # Checking DNS structure
+    dns = check_local_dns_status()
+    assert "hosts_path" in dns
+    assert "configured" in dns
+    assert isinstance(dns["configured"], bool)
+
+    # safe_open_browser should run without raising uncaught exceptions
+    res = safe_open_browser("http://127.0.0.1:8080")
+    assert isinstance(res, bool)

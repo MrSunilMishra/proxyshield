@@ -263,7 +263,7 @@ def handle_interactive_check(cmd_args: List[str]) -> None:
 
 def handle_interactive_reports(cmd_args: List[str] = None) -> None:
     """Launches local web server dashboard and opens reports in browser."""
-    from proxyshield.web_server import start_report_server, _ACTIVE_PORT
+    from proxyshield.web_server import start_report_server, safe_open_browser, _ACTIVE_PORT
     port = 8080
     if cmd_args and cmd_args[0].isdigit():
         port = int(cmd_args[0])
@@ -272,17 +272,20 @@ def handle_interactive_reports(cmd_args: List[str] = None) -> None:
     if _ACTIVE_PORT:
         local_url = f"http://127.0.0.1:{_ACTIVE_PORT}"
         domain_url = f"http://proxyshield.test:{_ACTIVE_PORT}"
-        print(colorize_text(f"Dashboard web server already running at: {local_url}", "bright_green"))
-        webbrowser.open(local_url)
+        print(colorize_text(f"✓ Dashboard web server is running at: {local_url}", "bright_green"))
+        opened = safe_open_browser(local_url)
     else:
-        local_url, actual_port = start_report_server(port=port, open_browser=True, background=True)
+        local_url, actual_port = start_report_server(port=port, open_browser=False, background=True)
         domain_url = f"http://proxyshield.test:{actual_port}"
         print(colorize_text(f"✓ Started background web server: {local_url}", "bright_green", bold=True))
         print(colorize_text(f"  • Custom Domain: {domain_url} (if mapped in hosts file)", "bright_cyan"))
-        print(colorize_text(f"  • Tip: Add '127.0.0.1 proxyshield.test' to your system hosts file.", "gray"))
-        webbrowser.open(local_url)
+        print(colorize_text(f"  • Tip: Type 'hosts' to check or configure proxyshield.test.", "gray"))
+        opened = safe_open_browser(local_url)
 
-    print(colorize_text("Opened Report Dashboard in your default browser.\n", "white"))
+    if opened:
+        print(colorize_text("Opened Report Dashboard in your default browser.\n", "white"))
+    else:
+        print(colorize_text(f"💡 Open in your browser: {local_url}\n", "bright_white", bold=True))
 
 
 def handle_interactive_ip() -> None:

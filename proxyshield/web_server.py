@@ -15,6 +15,8 @@ import glob
 import time
 import socket
 import threading
+import subprocess
+import shutil
 import webbrowser
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from typing import Optional, Tuple, Dict, Any, List
@@ -26,6 +28,120 @@ from proxyshield.color_engine import colorize_text
 _SERVER_THREAD: Optional[threading.Thread] = None
 _SERVER_INSTANCE: Optional[ThreadingHTTPServer] = None
 _ACTIVE_PORT: Optional[int] = None
+
+
+def is_wsl() -> bool:
+    """Checks if running under Windows Subsystem for Linux (WSL)."""
+    if sys.platform != "linux":
+        return False
+    try:
+        with open("/proc/version", "r", errors="ignore") as f:
+            v = f.read().lower()
+            return "microsoft" in v or "wsl" in v
+    except Exception:
+        return False
+
+
+def is_termux() -> bool:
+    """Checks if running inside Termux on Android."""
+    return "TERMUX_VERSION" in os.environ or os.path.exists("/data/data/com.termux")
+
+
+def safe_open_browser(url: str) -> bool:
+    """
+    Safely opens a URL in the user's default browser across
+    Windows, macOS, Linux, WSL, and Termux (Android).
+    Suppresses 'gio: ...: Operation not supported' errors.
+    """
+    # 1. Termux (Android)
+    if is_termux():
+        for cmd in ["termux-open-url", "termux-open"]:
+            if shutil.which(cmd):
+                try:
+                    subprocess.Popen(
+                        [cmd, url],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL
+                    )
+                    return True
+                except Exception:
+                    pass
+
+    # 2. WSL (Windows Subsystem for Linux)
+    if is_wsl():
+        if shutil.which("wslview"):
+            try:
+                subprocess.Popen(
+                    ["wslview", url],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
+                return True
+            except Exception:
+                pass
+        cmd_path = shutil.which("cmd.exe") or "/mnt/c/Windows/System32/cmd.exe"
+        if os.path.exists(cmd_path):
+            try:
+                subprocess.Popen(
+                    [cmd_path, "/c", "start", url.replace("&", "^&")],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
+                return True
+            except Exception:
+                pass
+
+    # 3. macOS
+    if sys.platform == "darwin":
+        try:
+            subprocess.Popen(
+                ["open", url],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+            return True
+        except Exception:
+            pass
+
+    # 4. Windows
+    if sys.platform == "win32":
+        try:
+            os.startfile(url)
+            return True
+        except Exception:
+            pass
+
+    # 5. Linux desktop (only if graphical display is active)
+    if sys.platform.startswith("linux"):
+        has_display = bool(os.environ.get("DISPLAY") or os.environ.get("WAYLAND_DISPLAY"))
+        if not has_display:
+            # Headless environment: do not invoke gio / xdg-open to avoid "Operation not supported"
+            return False
+
+        if shutil.which("xdg-open"):
+            try:
+                subprocess.Popen(
+                    ["xdg-open", url],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL
+                )
+                return True
+            except Exception:
+                pass
+
+    # 6. Fallback to standard webbrowser (suppressing stderr)
+    try:
+        devnull = open(os.devnull, "w")
+        old_stderr = sys.stderr
+        sys.stderr = devnull
+        try:
+            success = webbrowser.open(url)
+        finally:
+            sys.stderr = old_stderr
+            devnull.close()
+        return bool(success)
+    except Exception:
+        return False
 
 
 def find_available_port(start_port: int = 8080, max_attempts: int = 20) -> int:
@@ -423,7 +539,7 @@ def start_report_server(
     else:
         # In foreground: open browser and serve
         if open_browser:
-            webbrowser.open(local_url)
+            safe_open_browser(local_url)
         print(colorize_text(f"\n[ProxyShield Web Server] Running at: {local_url}", "bright_green", bold=True))
         print(colorize_text(f"  • Custom Domain: {domain_url} (requires hosts file entry)", "bright_cyan"))
         print(colorize_text("  • Serving audit reports (*.html, *.json, *.csv) and dashboard", "white"))
