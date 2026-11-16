@@ -103,13 +103,23 @@ safe_ini_get() {
 }
 
 # ------------------------------------------------------------------------------
-# 3. Execution: If Python engine is available, use rich high-fidelity rendering
+# 3. Execution: Prioritize Isolated Virtualenv (.venv) or System Python
 # ------------------------------------------------------------------------------
 PYTHON_BIN=""
-if command -v python >/dev/null 2>&1 && python -c "import sys" >/dev/null 2>&1; then
-    PYTHON_BIN="python"
+if [ -f "./.venv/bin/python" ]; then
+    PYTHON_BIN="./.venv/bin/python"
+elif [ -f "./.venv/Scripts/python.exe" ]; then
+    PYTHON_BIN="./.venv/Scripts/python.exe"
+elif [ -f "../.venv/bin/python" ]; then
+    PYTHON_BIN="../.venv/bin/python"
+elif [ -f "../.venv/Scripts/python.exe" ]; then
+    PYTHON_BIN="../.venv/Scripts/python.exe"
+elif command -v uv >/dev/null 2>&1; then
+    PYTHON_BIN="uv run python"
 elif command -v python3 >/dev/null 2>&1 && python3 -c "import sys" >/dev/null 2>&1; then
     PYTHON_BIN="python3"
+elif command -v python >/dev/null 2>&1 && python -c "import sys" >/dev/null 2>&1; then
+    PYTHON_BIN="python"
 fi
 
 if [ -n "$PYTHON_BIN" ] && $PYTHON_BIN -c "import proxyshield.branding" >/dev/null 2>&1; then

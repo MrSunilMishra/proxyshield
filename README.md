@@ -49,57 +49,75 @@
 
 ## 🚀 Step-by-Step Installation Procedure
 
-### 1. Prerequisites
+### ⚡ Recommended: Fast & Isolated Setup with `uv` (Zero System Pollution)
 
-Ensure you have **Python 3.8+**, `pip`, and `git` installed:
-
-```bash
-python3 --version
-git --version
-```
-
----
-
-### 2. Clone the Repository
-
-Clone ProxyShield to your local machine:
+To keep your system clean and undisturbed, use [**uv**](https://github.com/astral-sh/uv) (ultra-fast Python package and project manager). All dependencies are contained in an isolated local `.venv` without touching global system packages:
 
 ```bash
+# 1. Install uv (if not already installed)
+# Linux / macOS / Termux:
+curl -LsSf https://astral.sh/uv/install.sh | sh
+# Windows (PowerShell):
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+
+# 2. Clone the repository
 git clone https://github.com/MrSunilMishra/proxyshield.git
 cd proxyshield
+
+# 3. Create isolated virtual environment
+uv venv .venv
+
+# 4. Activate the virtual environment
+# Linux / macOS / Termux:
+source .venv/bin/activate
+# Windows (PowerShell):
+.venv\Scripts\Activate.ps1
+
+# 5. Install ProxyShield in isolated environment
+uv pip install -e .[dev]
 ```
 
 ---
 
-### 3. Installation by Platform
+### Alternative: Standard Python & Virtual Environment
+
+If you prefer standard Python tooling:
 
 #### 🐧 On Linux & macOS
 ```bash
-# Optional: create a virtual environment
-python3 -m venv venv
-source venv/bin/activate
+git clone https://github.com/MrSunilMishra/proxyshield.git
+cd proxyshield
 
-# Install dependencies and ProxyShield CLI
+python3 -m venv .venv
+source .venv/bin/activate
+
 pip install -r requirements.txt
 pip install -e .
 ```
 
 #### 📱 On Android (Termux)
 ```bash
-# Update and install dependencies in Termux
 pkg update && pkg upgrade -y
 pkg install python git -y
 
-# Clone and install
 git clone https://github.com/MrSunilMishra/proxyshield.git
 cd proxyshield
+
+python -m venv .venv
+source .venv/bin/activate
+
 pip install -r requirements.txt
 pip install -e .
 ```
 
-#### 🪟 On Windows (PowerShell / Command Prompt)
+#### 🪟 On Windows (PowerShell)
 ```powershell
-# In PowerShell:
+git clone https://github.com/MrSunilMishra/proxyshield.git
+cd proxyshield
+
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+
 pip install -r requirements.txt
 pip install -e .
 ```
