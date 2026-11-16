@@ -6,6 +6,7 @@ import tempfile
 import os
 from proxyshield.proxy_engine import (
     fetch_free_proxies,
+    fetch_iplocate_proxies,
     export_proxies_to_file,
     get_random_free_proxy,
 )
@@ -57,4 +58,21 @@ def test_random_proxy():
     p = get_random_free_proxy(source="geonode")
     if p:
         assert "://" in p.get("proxy", "")
+
+
+def test_fetch_iplocate_proxies_in_memory():
+    # Tests that iplocate proxies are fetched in-memory without saving any disk files
+    proxies = fetch_iplocate_proxies(protocol="http", timeout=8)
+    assert isinstance(proxies, list)
+    if proxies:
+        first = proxies[0]
+        assert first["source"] == "iplocate"
+        assert first["protocol"] == "http"
+        assert ":" in first["proxy"]
+        assert "ip" in first
+        assert "port" in first
+        # Verify no file was created in working directory
+        assert not os.path.exists("http.txt")
+        assert not os.path.exists("https.txt")
+
 

@@ -219,28 +219,41 @@ class NetworkAuditEngine:
         success = 0
         blocked = 0
         direct_exposure_prevented = 0
-
         discarded_dead = 0
 
-        for proxy_item in proxies:
-            # Stop once we have reached the desired number of verified target requests
-            if len(results) >= max_requests:
-                break
+        # In-memory candidate pool with zero disk storage
+        candidate_pool = list(proxies)
+        pool_idx = 0
+        fetched_fallback = False
 
+        while len(results) < max_requests and pool_idx < len(candidate_pool):
+            proxy_item = candidate_pool[pool_idx]
+            pool_idx += 1
             proxy_url = proxy_item["proxy"]
 
             # 1. Discover & Validate observed exit IP first (Strict Direct-IP Guard)
             try:
                 ok_exit, observed_exit_ip, _ = self.shield.check_proxy_exit_ip(proxy_url, timeout=timeout)
                 if not ok_exit or not observed_exit_ip:
-                    # Stale / dead proxy: discard immediately, do not clutter results with failed proxy
+                    # Stale / dead proxy: discard immediately, do not clutter results
                     discarded_dead += 1
+                    # If pool runs low, replenish once from in-memory iplocate feeds
+                    if pool_idx >= len(candidate_pool) and not fetched_fallback and len(results) < max_requests:
+                        fetched_fallback = True
+                        try:
+                            from proxyshield.proxy_engine import fetch_iplocate_proxies
+                            fresh = fetch_iplocate_proxies(timeout=timeout)
+                            for it in fresh:
+                                if it not in candidate_pool:
+                                    candidate_pool.append(it)
+                        except Exception:
+                            pass
                     continue
-            except DirectIPExposureError as die:
+            except DirectIPExposureError:
                 direct_exposure_prevented += 1
                 continue
 
-            # 2. Execute target test strictly via verified proxy
+            # 2. Execute target test strictly via verified working proxy
             start_req = time.perf_counter()
             status_code = None
             exception_obj = None
@@ -259,9 +272,19 @@ class NetworkAuditEngine:
                     success += 1
                 # Collect target technology intelligence from live response
                 target_intel = collect_target_intelligence(target_url, resp)
-            except Exception as e:
-                # Proxy dropped connection to target: discard and try next proxy
+            except Exception:
+                # Proxy dropped connection to target: discard and continue
                 discarded_dead += 1
+                if pool_idx >= len(candidate_pool) and not fetched_fallback and len(results) < max_requests:
+                    fetched_fallback = True
+                    try:
+                        from proxyshield.proxy_engine import fetch_iplocate_proxies
+                        fresh = fetch_iplocate_proxies(timeout=timeout)
+                        for it in fresh:
+                            if it not in candidate_pool:
+                                candidate_pool.append(it)
+                    except Exception:
+                        pass
                 continue
 
             elapsed_ms = int((time.perf_counter() - start_req) * 1000)

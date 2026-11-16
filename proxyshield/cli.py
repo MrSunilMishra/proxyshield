@@ -138,8 +138,8 @@ def handle_proxy_cli(args: argparse.Namespace) -> int:
             return 1
 
     limit = args.limit or (10 if action == "check" else 20)
-    source_label = "ProxyScrape + Geonode" if source == "all" else source.capitalize()
-    print(colorize_text(f"\n[ProxyShield] Querying free proxy pool ({source_label})...", "bright_cyan"))
+    source_label = "iplocate + ProxyScrape + Geonode" if source == "all" else source.capitalize()
+    print(colorize_text(f"\n[ProxyShield] Querying free proxy pool in-memory ({source_label})...", "bright_cyan"))
 
     try:
         proxies = fetch_free_proxies(
@@ -210,11 +210,12 @@ def handle_audit_cli(args: argparse.Namespace) -> int:
     diagnosed = diagnose_proxies_concurrent(raw_candidates, max_workers=15, timeout=3)
     verified_alive = [p for p in diagnosed if p.get("verified_alive", False)]
     if verified_alive:
-        verified_alive.sort(key=lambda x: x.get("latency_ms", 9999))
-        proxies = verified_alive[:needed]
-        print(colorize_text(f"✓ Selected top {len(proxies)} verified active proxies (latencies: {proxies[0].get('latency_ms', 0)}ms - {proxies[-1].get('latency_ms', 0)}ms)", "bright_green"))
+        verified_alive.sort(key=lambda x: x.get("measured_latency_ms", x.get("latency_ms", 9999)))
+        unverified = [p for p in raw_candidates if p not in verified_alive]
+        proxies = (verified_alive + unverified)[:max(needed * 2, 20)]
+        print(colorize_text(f"✓ Discovered {len(verified_alive)} verified responsive proxies (fastest: {proxies[0].get('measured_latency_ms', 0)}ms)", "bright_green"))
     else:
-        proxies = raw_candidates[:needed]
+        proxies = raw_candidates[:max(needed * 2, 20)]
         print(colorize_text("Note: High network latency detected; proceeding with candidate endpoints.", "bright_yellow"))
 
     print(colorize_text(f"Beginning sequential low-rate testing across verified endpoints...", "bright_yellow"))
@@ -341,8 +342,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     # proxy fetch / list
     def add_filter_args(p):
-        p.add_argument("--source", "-s", choices=["all", "geonode", "proxyscrape"], default="all", help="Proxy provider source")
-        p.add_argument("--protocol", choices=["http", "socks4", "socks5", "all"], default="all", help="Proxy protocol")
+        p.add_argument("--source", "-s", choices=["all", "iplocate", "geonode", "proxyscrape"], default="all", help="Proxy provider source")
+        p.add_argument("--protocol", choices=["http", "https", "socks4", "socks5", "all"], default="all", help="Proxy protocol")
         p.add_argument("--country", "-c", type=str, help="Country code filter (e.g. US, DE, IN, ES, CN)")
         p.add_argument("--anonymity", choices=["elite", "anonymous", "transparent", "all"], default="all", help="Anonymity level")
         p.add_argument("--ssl", action="store_true", help="SSL/HTTPS support only")
@@ -364,8 +365,8 @@ def build_parser() -> argparse.ArgumentParser:
     check_p.add_argument("--alive-only", action="store_true", help="Only save verified working proxies to output")
 
     rand_p = proxy_sub.add_parser("random", aliases=["r", "rand"], help="Output a single working free proxy")
-    rand_p.add_argument("--source", "-s", choices=["all", "geonode", "proxyscrape"], default="all")
-    rand_p.add_argument("--protocol", choices=["http", "socks4", "socks5", "all"], default="all")
+    rand_p.add_argument("--source", "-s", choices=["all", "iplocate", "geonode", "proxyscrape"], default="all")
+    rand_p.add_argument("--protocol", choices=["http", "https", "socks4", "socks5", "all"], default="all")
     rand_p.add_argument("--country", "-c", type=str)
     rand_p.add_argument("--anonymity", choices=["elite", "anonymous", "transparent", "all"], default="all")
 

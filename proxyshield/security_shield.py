@@ -89,24 +89,46 @@ class StrictProxyShield:
     def check_proxy_exit_ip(self, proxy_url: str, timeout: int = 5) -> Tuple[bool, str, int]:
         """
         Queries an IP-echo endpoint through the proxy to discover its observed exit IP.
+        Uses multiple fast mirrors (httpbin, ipify) in memory with zero file storage.
         Returns (success, observed_exit_ip, latency_ms).
         """
         start = time.perf_counter()
-        try:
-            with httpx.Client(proxy=proxy_url, timeout=timeout) as client:
-                resp = client.get("https://api.ipify.org?format=text")
-                latency_ms = int((time.perf_counter() - start) * 1000)
-                if resp.status_code == 200:
-                    exit_ip = resp.text.strip()
-                    # Enforce direct IP guard
-                    self.verify_exit_ip(exit_ip)
-                    return True, exit_ip, latency_ms
-                return False, f"HTTP {resp.status_code}", latency_ms
-        except DirectIPExposureError:
-            raise
-        except Exception as e:
-            latency_ms = int((time.perf_counter() - start) * 1000)
-            return False, str(e), latency_ms
+        # Fast in-memory echo mirrors supporting both HTTP & HTTPS proxy tunnels
+        check_endpoints = [
+            "http://httpbin.org/ip",
+            "https://api.ipify.org?format=text",
+            "http://api.ipify.org?format=text",
+            "https://api64.ipify.org?format=text",
+        ]
+        last_err = "No response from proxy"
+
+        for ep in check_endpoints:
+            try:
+                with httpx.Client(proxy=proxy_url, timeout=timeout) as client:
+                    resp = client.get(ep)
+                    latency_ms = int((time.perf_counter() - start) * 1000)
+                    if resp.status_code == 200 and resp.text.strip():
+                        raw_text = resp.text.strip()
+                        if "{" in raw_text and "origin" in raw_text:
+                            try:
+                                exit_ip = resp.json().get("origin", "").split(",")[0].strip()
+                            except Exception:
+                                exit_ip = raw_text.split()[0]
+                        else:
+                            exit_ip = raw_text.split()[0].strip()
+
+                        if exit_ip and exit_ip != "unknown":
+                            # Enforce strict direct IP guard
+                            self.verify_exit_ip(exit_ip)
+                            return True, exit_ip, latency_ms
+            except DirectIPExposureError:
+                raise
+            except Exception as e:
+                last_err = str(e)
+                continue
+
+        latency_ms = int((time.perf_counter() - start) * 1000)
+        return False, last_err, latency_ms
 
     def execute_strictly_via_proxy(
         self,

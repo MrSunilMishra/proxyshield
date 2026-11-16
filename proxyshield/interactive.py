@@ -148,11 +148,12 @@ def handle_interactive_audit(cmd_args: List[str]) -> None:
     diagnosed = diagnose_proxies_concurrent(raw_candidates, max_workers=15, timeout=3)
     verified_alive = [p for p in diagnosed if p.get("verified_alive", False)]
     if verified_alive:
-        verified_alive.sort(key=lambda x: x.get("latency_ms", 9999))
-        proxies = verified_alive[:limit]
-        print(colorize_text(f"✓ Selected top {len(proxies)} verified active proxies (latencies: {proxies[0].get('latency_ms', 0)}ms - {proxies[-1].get('latency_ms', 0)}ms)", "bright_green"))
+        verified_alive.sort(key=lambda x: x.get("measured_latency_ms", x.get("latency_ms", 9999)))
+        unverified = [p for p in raw_candidates if p not in verified_alive]
+        proxies = (verified_alive + unverified)[:max(limit * 2, 20)]
+        print(colorize_text(f"✓ Discovered {len(verified_alive)} verified responsive proxies (fastest: {proxies[0].get('measured_latency_ms', 0)}ms)", "bright_green"))
     else:
-        proxies = raw_candidates[:limit]
+        proxies = raw_candidates[:max(limit * 2, 20)]
         print(colorize_text("Note: High network latency detected; proceeding with candidate endpoints.", "bright_yellow"))
 
     print(colorize_text(f"Beginning sequential low-rate testing across verified endpoints...", "bright_yellow"))
