@@ -17,9 +17,9 @@ from proxyshield.cli import build_parser, normalize_aliases
 
 def test_interactive_header_branding():
     header = get_interactive_header()
-    assert "< ProxyShield >" in header
-    assert "A tool by Quarkova" in header
-    assert "+------------------------------------+" in header
+    assert "Quarkova" in header
+    assert "MIT License" in header
+    assert "quarkova.com" in header
     assert "[Note]" in header
 
 

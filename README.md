@@ -213,20 +213,24 @@ pxs
 You will see the interactive terminal interface:
 
 ```
-+------------------------------------+
-|                                    |
-| < ProxyShield >                    |
-| --------------                     |
-|        \   ^__^                    |
-|         \  (oo)\_______            |
-|            (__)\       )\ /\       |
-|                ||----w |           |
-|                ||     ||           |
-+------------------------------------+
-| A tool by Quarkova                 |
-+------------------------------------+
+             _____                      _____ _     _      _     _
+            |  __ \                    / ____| |   █_█    | |   | |
+            | |__█ | __ _____  ___   _| █___ | |__  _  ___| | __| |
+            |  ___/ ▓__/ _ \ \/ / | | |\___ \| ▓_ \| |/ _ \ |/ _▓ |
+            | |   | | | ▓_▓ ▓  ▓| |_| |____▓ | | | | |  __/ | ▓_| |
+            |_|   |_|  \___/_/\_\\__▒ |_____/|_| |_|_|\___|_|\__▒_|
+                                  __/ |
+                                 |___/
+
+                    v1.0.0 | Author: Quarkova | MIT License
+                            « Learn. Test. Secure. »
+                              https://quarkova.com
+
+            [ Platform: Windows 11 | Arch: AMD64 | Python: 3.13.7 ]
 
 [Note] ProxyShield Public Proxy Intelligence & Authorized Security Auditor.
+Type 'help' to view available commands, or 'exit' to quit.
+
 ProxyShield >> help
 +-------------+------------------------------------------------------+
 |   command   |                     description                      |

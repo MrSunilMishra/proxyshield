@@ -45,27 +45,14 @@ from proxyshield.config_manager import (
 
 
 def get_interactive_header() -> str:
-    """Returns the ASCII cow-box header matching the Termux-SSH style."""
-    box_lines = [
-        "+------------------------------------+",
-        "|                                    |",
-        "| < ProxyShield >                    |",
-        "| --------------                     |",
-        "|        \\   ^__^                    |",
-        "|         \\  (oo)\\_______            |",
-        "|            (__)\\       )\\ /\\       |",
-        "|                ||----w |           |",
-        "|                ||     ||           |",
-        "+------------------------------------+",
-        "| A tool by Quarkova                 |",
-        "+------------------------------------+",
-    ]
-    green_box = "\n".join(colorize_text(line, "bright_green") for line in box_lines)
+    """Returns the branded ProxyShield CFonts banner matching the tool theme."""
+    banner = render_branding_banner()
     note_line = (
         colorize_text("\n[Note] ", "bright_yellow", bold=True)
-        + colorize_text("ProxyShield Public Proxy Intelligence & Authorized Security Auditor.", "white")
+        + colorize_text("ProxyShield Public Proxy Intelligence & Authorized Security Auditor.\n", "white")
+        + colorize_text("Type 'help' to view available commands, or 'exit' to quit.\n", "bright_cyan")
     )
-    return green_box + "\n" + note_line
+    return banner + "\n" + note_line
 
 
 def print_interactive_help() -> None:
